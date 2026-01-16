@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .bg-primary {
+    background-color: #355E3B;
+  }
+  .bg-secondary {
+    background-color: #E8F5EE;
+  }
+  .text-primary {
+    color: #006727;
+  }
+}
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.hero-bg {
+  animation: kenburns 20s ease-in-out infinite alternate;
+}
+.slider-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.slider-track {
+  display: flex;
+  width: 200%;
+  height: 100%;
+  animation: slide 12s infinite ease-in-out;
+}
+
+.slide {
+  width: 50%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Smooth horizontal slide */
+@keyframes slide {
+  0% { transform: translateX(0%); }
+  45% { transform: translateX(0%); }
+  50% { transform: translateX(-50%); }
+  95% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
