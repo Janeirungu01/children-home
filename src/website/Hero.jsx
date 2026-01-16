@@ -1,3 +1,24 @@
+// import { useState } from "react";
+
+// export default function Hero() {
+//   // Load hero from localStorage once during initial state setup
+//   const savedHero = JSON.parse(localStorage.getItem("hero")) || {};
+
+//   const [hero] = useState({
+//     title: savedHero.title || "Brighter Together Foundation",
+//     motto: savedHero.motto || "Touch a child's heart.",
+//     mission: savedHero.mission || "Restoring hope.",
+//   });
+
+//   return (
+//     <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
+//       <h2 className="text-4xl md:text-6xl font-bold mb-4">{hero.title}</h2>
+//       <h3 className="text-xl md:text-4xl mb-2">{hero.motto}</h3>
+//       <h3 className="text-xl md:text-4xl">{hero.mission}</h3>
+//     </div>
+//   );
+// }
+
 import backgroundImage from "../assets/children8.jpg";
 import img2 from "../assets/children1.jpg";
 
@@ -51,3 +72,5 @@ export default function Hero() {
     </div>
   );
 }
+
+

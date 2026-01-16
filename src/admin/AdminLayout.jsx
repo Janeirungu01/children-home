@@ -1,18 +1,41 @@
-import { Link, Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 bg-primary text-white p-4 hidden md:block">
-        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
-        <nav className="space-y-2">
-          <Link to="/admin">Dashboard</Link><br />
-          <Link to="/admin/activities">Manage Activities</Link><br />
-          <Link to="/admin/contact">Contact Info</Link>
+    <div className="flex min-h-screen bg-gray-100">
+      
+      {/* Sidebar */}
+      <aside className="w-64 bg-primary text-white flex flex-col">
+        <div className="p-6 text-center font-bold text-xl border-b border-white">
+          Admin Panel
+        </div>
+        <nav className="flex-1 p-4 space-y-2">
+          <Link to="/admin" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Dashboard
+          </Link>
+          <Link to="/admin/hero" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Hero
+          </Link>
+          <Link to="/admin/goals" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Goals
+          </Link>
+          <Link to="/admin/about" className="block py-2 px-4 hover:bg-green-700 rounded">
+            About
+          </Link>
+          <Link to="/admin/activities" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Activities
+          </Link>
+          <Link to="/admin/donations" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Donations
+          </Link>
+          <Link to="/admin/contact" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Contact
+          </Link>
         </nav>
       </aside>
 
-      <main className="flex-1 bg-gray-50 p-6">
+      {/* Main Content */}
+      <main className="flex-1 p-8">
         <Outlet />
       </main>
     </div>
