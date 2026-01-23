@@ -39,7 +39,7 @@ export default function GoalSection() {
           {goals.map((g) => (
             <div
               key={g.title}
-              className="bg-white p-8 rounded-tr-3xl rounded-bl-3xl shadow text-center"
+              className="bg-gray-50 p-8 rounded-tr-3xl rounded-bl-3xl shadow-lg text-center"
             >
               <div className="flex justify-center mb-4">{g.icon}</div>
               <h3 className="text-secondary text-xl mb-2">{g.title}</h3>

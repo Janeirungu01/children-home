@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
 
 export default function Navbar() {
   return (
@@ -6,28 +6,31 @@ export default function Navbar() {
       <h3 className="font-bold text-xl">Brighter Together Foundation</h3>
 
       <div className="space-x-6 hidden md:flex items-center">
-        <Link to="/" className="hover:underline">
+        <HashLink to="/" className="hover:underline">
           Home
-        </Link>
+        </HashLink>
 
-        <Link to="/#activities" className="hover:underline">
+        <HashLink to="/#activities" className="hover:underline">
           Activities
-        </Link>
+        </HashLink>
+        <a href="/#activities" className="hover:underline">
+          Goals
+        </a>
 
-        <Link to="/#past-activities" className="hover:underline">
+        <HashLink to="/#past-activities" className="hover:underline">
           Past
-        </Link>
+        </HashLink>
 
-        <Link to="/#contact" className="hover:underline">
+        <HashLink to="/#contact" className="hover:underline">
           Contact
-        </Link>
+        </HashLink>
 
-        <Link
+        <HashLink
           to="/#donate"
           className="bg-white text-primary px-3 py-1 rounded font-semibold hover:bg-gray-100 transition"
         >
           Donate
-        </Link>
+        </HashLink>
       </div>
     </nav>
   );
