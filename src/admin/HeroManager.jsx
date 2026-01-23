@@ -1,19 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { updatePageSection, fetchPageSection } from "../components/api";
+
 export default function HeroManager() {
-  const savedHero = JSON.parse(localStorage.getItem("hero")) || {};
+  const [title, setTitle] = useState("");
+  const [motto, setMotto] = useState("");
+  const [mission, setMission] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const [title, setTitle] = useState(savedHero.title || "Brighter Together Foundation");
-  const [motto, setMotto] = useState(savedHero.motto || "Touch a child's heart.");
-  const [mission, setMission] = useState(savedHero.mission || "Restoring hope.");
+  // Load current hero data from backend
+  useEffect(() => {
+    fetchPageSection("HEADERS")
+      .then((data) => {
+        if (data.headers) {
+          setTitle(data.headers.headerTitle || "");
+          setMotto(data.headers.motto || "");
+          setMission(data.headers.mission || "");
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  const handleSave = () => {
-    const heroData = { title, motto, mission };
-    localStorage.setItem("hero", JSON.stringify(heroData));
-    alert("Hero section updated!");
+  const handleSave = async () => {
+    try {
+      await updatePageSection("HEADERS", {
+        id: "hero-1",
+        headerTitle: title,
+        motto,
+        mission,
+      });
+      alert("Hero section updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update hero section");
+    }
   };
 
+  if (loading) return <p>Loading...</p>;
+
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-2xl mx-auto"> 
       <h2 className="text-2xl font-bold">Edit Hero Section</h2>
 
       <div>
@@ -45,7 +70,8 @@ export default function HeroManager() {
 
       <button
         onClick={handleSave}
-        className="bg-primary text-white px-6 py-2 rounded hover:bg-green-700"
+        className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold
+            hover:bg-primary/90 transition"
       >
         Save Changes
       </button>
