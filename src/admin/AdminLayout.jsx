@@ -22,8 +22,14 @@ export default function AdminLayout() {
           <Link to="/admin/about" className="block py-2 px-4 hover:bg-green-700 rounded">
             About
           </Link>
+          <Link to="/admin/documents" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Documents
+          </Link>
           <Link to="/admin/activities" className="block py-2 px-4 hover:bg-green-700 rounded">
             Activities
+          </Link>
+          <Link to="/admin/ourstory" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Our Story
           </Link>
           <Link to="/admin/donations" className="block py-2 px-4 hover:bg-green-700 rounded">
             Donations
