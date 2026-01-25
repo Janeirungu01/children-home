@@ -3,7 +3,7 @@ import children9 from "../assets/children9.jpg";
 export default function ImageTextSection() {
   return (
     <section className="py-16">
-      <div className="max-w-6xl mx-auto bg-white rounded-tr-3xl rounded-bl-3xl shadow flex flex-col md:flex-row overflow-hidden">
+      <div className="max-w-7xl px-4 mx-auto bg-white rounded-tr-3xl flex flex-col md:flex-row overflow-hidden">
         <div
           className="md:w-1/2 h-64 md:h-auto bg-cover bg-center"
           style={{ backgroundImage: `url(${children9})` }}

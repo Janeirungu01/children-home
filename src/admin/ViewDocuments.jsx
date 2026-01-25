@@ -59,7 +59,7 @@ export default function ViewDocuments() {
                   {item.contentType}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Group: {item.groupName}
+                  Group: {item.documentId}
                 </p>
               </div>
             </div>

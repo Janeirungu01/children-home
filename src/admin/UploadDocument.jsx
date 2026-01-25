@@ -47,11 +47,11 @@ export default function UploadDocument() {
 
   return (
     <>
-      <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Upload Document
         </h2>
-
+        
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* File Input */}
           <div>
@@ -76,7 +76,6 @@ export default function UploadDocument() {
             )}
           </div>
 
-          {/* Group Name */}
           {/* Group Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

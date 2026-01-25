@@ -16,7 +16,6 @@ export default function ActivitiesSection() {
         `${API.BASE_URL}/activities/search-activities?groupname=headers&pageSize=50`
       );
 
-      // ✅ FIX: read content array
       setActivities(res.data.result?.content || []);
     } catch (err) {
       console.error("Failed to load activities", err);
