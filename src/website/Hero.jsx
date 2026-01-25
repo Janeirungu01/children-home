@@ -7,21 +7,28 @@ export default function Hero() {
   const [heroData, setHeroData] = useState({
     headerTitle: "Brighter Together Foundation",
     motto: "Touch a child's heart.",
-    mission: "Restoring hope."
+    mission: "Restoring hope.",
   });
 
   useEffect(() => {
-    fetchPageSection("HEADERS")
-      .then((data) => {
-        if (data.headers) {
+    async function loadHero() {
+      try {
+        const res = await fetchPageSection("HEADERS");
+        const item = res?.result?.[0]; // ✅ backend returns array
+
+        if (item) {
           setHeroData({
-            headerTitle: data.headers.headerTitle,
-            motto: data.headers.motto,
-            mission: data.headers.mission
+            headerTitle: item.headerTitle || heroData.headerTitle,
+            motto: item.motto || heroData.motto,
+            mission: item.mission || heroData.mission,
           });
         }
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error("Failed to load hero data", err);
+      }
+    }
+
+    loadHero();
   }, []);
 
   return (
@@ -33,11 +40,11 @@ export default function Hero() {
               <div
                 className="slide"
                 style={{ backgroundImage: `url(${backgroundImage})` }}
-              ></div>
+              />
               <div
                 className="slide"
                 style={{ backgroundImage: `url(${img2})` }}
-              ></div>
+              />
             </div>
           </div>
         </div>
@@ -61,4 +68,3 @@ export default function Hero() {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@ import Hero from "./Hero";
 import Goals from "./Goals";
 import ImageTextSection from "../components/ImageTextSection";
 import ActivitiesSection from "../components/ActivitiesSection";
-import Donations from "./Donate";
+import Donations from "./Donations";
 import OurStory from "./OurStory";
 import Footer from "../components/Footer";
 
@@ -13,10 +13,6 @@ export default function Home() {
       <Navbar />
       <Hero />
 
-      <section id="story">
-        <OurStory />
-      </section>
-
       <section id="goals">
         <Goals />
       </section>
@@ -25,12 +21,16 @@ export default function Home() {
         <ImageTextSection />
       </section>
 
+      <section id="donations">
+        <Donations />
+      </section>
+
       <section id="activities">
         <ActivitiesSection />
       </section>
 
-      <section id="donations">
-        <Donations />
+      <section id="story">
+        <OurStory />
       </section>
 
       <section id="contact">
