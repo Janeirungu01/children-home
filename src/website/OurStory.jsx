@@ -36,11 +36,10 @@ export default function OurStory() {
   return (
     <>
     <section id="story" className="flex justify-center">
-      <div className="flex flex-col items-center  mt-10 mb-20 px-4">
-        <h1 className="text-xl uppercase font-bold text-primary mb-2">{ourStory.ourStoryTitle}</h1>
-        {/* <span className="text-sm uppercase font-semibold text-primary">
+      <div className="flex flex-col items-center  mt-10 mb-10 px-4">
+        <span className="text-sm uppercase font-semibold text-primary">
           {ourStory.ourStoryTitle}
-        </span> */}
+        </span>
 
         <h2 className="text-[40px] font-medium text-secondary mt-1 text-center">
           {ourStory.ourStorySubtitle}
