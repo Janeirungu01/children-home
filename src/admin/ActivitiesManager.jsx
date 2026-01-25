@@ -12,7 +12,7 @@ export default function ActivitiesManager() {
   const handleDocumentUpload = (e) => {
     setDocument(e.target.files[0]);
   };
-  
+
   const handleAdd = async () => {
     if (!title || !desc || !document) {
       alert("Please add title, description and document");
@@ -28,7 +28,9 @@ export default function ActivitiesManager() {
       documentTitle: document.name,
     };
 
-    const encodedDTO = encodeURIComponent(JSON.stringify(activitiesRequestDTO));
+    const encodedDTO = encodeURIComponent(
+      JSON.stringify(activitiesRequestDTO)
+    );
 
     const formData = new FormData();
     formData.append("document", document);
@@ -39,11 +41,7 @@ export default function ActivitiesManager() {
       await axios.post(
         `${API.BASE_URL}/activities/create-activities?activitiesRequestDTO=${encodedDTO}`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       alert("Activity created successfully");
@@ -61,46 +59,49 @@ export default function ActivitiesManager() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 p-4">
-      <h2 className="text-2xl font-bold">Manage Activities</h2>
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+        <h2 className="text-2xl font-bold text-secondary">
+          Activities Settings
+        </h2>
 
-      {/* Form */}
-      <div className="space-y-3 p-4 rounded shadow">
-        {/* Upload Document (ADDED – TOP) */}
-        <input
-          type="file"
-          accept="image/*,.pdf"
-          className="w-full border px-3 py-2 rounded"
-          onChange={handleDocumentUpload}
-        />
+        <div className="space-y-3">
+          {/* Document Upload */}
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            className="w-full border px-4 py-2 rounded-lg"
+            onChange={handleDocumentUpload}
+          />
 
-        <input
-          type="text"
-          placeholder="Title"
-          className="w-full border px-3 py-2 rounded"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+          <input
+            type="text"
+            placeholder="Title"
+            className="w-full border px-4 py-2 rounded-lg"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
 
-        <input
-          type="text"
-          placeholder="Location / Subtitle"
-          className="w-full border px-3 py-2 rounded"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-        />
+          <input
+            type="text"
+            placeholder="Location / Subtitle"
+            className="w-full border px-4 py-2 rounded-lg"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+          />
 
-        <textarea
-          placeholder="Description"
-          className="w-full border px-3 py-2 rounded"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-        />
+          <textarea
+            placeholder="Description"
+            className="w-full border px-4 py-2 rounded-lg min-h-[120px]"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+          />
+        </div>
 
         <button
           onClick={handleAdd}
           disabled={loading}
-          className="bg-primary text-white px-6 py-2 rounded  w-full disabled:opacity-60"
+          className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60"
         >
           {loading ? "Uploading..." : "Add Activity"}
         </button>

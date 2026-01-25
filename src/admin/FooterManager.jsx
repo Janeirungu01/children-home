@@ -2,16 +2,13 @@ import { useEffect, useState } from "react";
 import { fetchPageSection, updatePageSection } from "../components/api";
 
 export default function FooterManager() {
-  // IDs (required for updates)
   const [contactId, setContactId] = useState(null);
   const [linksId, setLinksId] = useState(null);
 
-  // Contact
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
 
-  // Links
   const [facebook, setFacebook] = useState("");
   const [twitter, setTwitter] = useState("");
   const [instagram, setInstagram] = useState("");
@@ -20,7 +17,6 @@ export default function FooterManager() {
 
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Load existing footer data
   useEffect(() => {
     async function loadFooterData() {
       try {
@@ -29,7 +25,6 @@ export default function FooterManager() {
           fetchPageSection("LINKS"),
         ]);
 
-        // CONTACT
         const contactItem = contactRes?.result?.[0];
         if (contactItem) {
           setContactId(contactItem.id);
@@ -38,7 +33,6 @@ export default function FooterManager() {
           setAddress(contactItem.contactRequest?.address || "");
         }
 
-        // LINKS
         const linksItem = linksRes?.result?.[0];
         if (linksItem) {
           setLinksId(linksItem.id);
@@ -56,130 +50,134 @@ export default function FooterManager() {
     loadFooterData();
   }, []);
 
-  // 🔹 Save footer changes
- const handleSubmit = async () => {
-  if (loading) return;
-  setLoading(true);
+  const handleSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
 
-  try {
-    // 1️⃣ Update CONTACT first
-    await updatePageSection("CONTACT", {
-      id: contactId,
-      email: email.trim(),
-      phoneNumber,
-      address,
-    });
+    try {
+      await updatePageSection("CONTACT", {
+        id: contactId,
+        email: email.trim(),
+        phoneNumber,
+        address,
+      });
 
-    // 2️⃣ Then update LINKS
-    await updatePageSection("LINKS", {
-      id: linksId,
-      facebook,
-      twitter,
-      instagram,
-      youtube,
-      whatsApp,
-    });
+      await updatePageSection("LINKS", {
+        id: linksId,
+        facebook,
+        twitter,
+        instagram,
+        youtube,
+        whatsApp,
+      });
 
-    alert("Footer updated successfully");
-  } catch (err) {
-    console.error(err);
-    alert("Failed to update footer");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      alert("Footer updated successfully");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update footer");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-6 space-y-8">
+      <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
         <h2 className="text-2xl font-bold text-secondary">
-          Footer Settings
+          Contact Settings
         </h2>
 
-        {/* Contact Section */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
-            Contact Information
-          </h3>
+        {/* Contact Information */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-700">Contact Information</h3>
 
-          <div className="space-y-3">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="w-full rounded-lg border px-4 py-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <input
+            type="email"
+            placeholder="Email address"
+            className="w-full border px-3 py-1.5 rounded-lg"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-            <input
-              type="text"
-              placeholder="Phone number"
-              className="w-full rounded-lg border px-4 py-2"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-            />
+          <input
+            type="text"
+            placeholder="Phone number"
+            className="w-full border px-3 py-1.5 rounded-lg"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
 
-            <input
-              type="text"
-              placeholder="Physical address"
-              className="w-full rounded-lg border px-4 py-2"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Physical address"
+            className="w-full border px-3 py-1.5 rounded-lg"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
         </div>
 
-        {/* Social Links Section */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
-            Social Media Links
-          </h3>
+        {/* Social Media Links */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-700">Social Media Links</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              placeholder="Facebook"
-              className="input-field"
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <SocialInput
+              label="Facebook"
+              placeholder="https://facebook.com/..."
               value={facebook}
-              onChange={(e) => setFacebook(e.target.value)}
+              onChange={setFacebook}
             />
-            <input
-              placeholder="Twitter (X)"
-              className="input-field"
+            <SocialInput
+              label="Twitter (X)"
+              placeholder="https://x.com/..."
               value={twitter}
-              onChange={(e) => setTwitter(e.target.value)}
+              onChange={setTwitter}
             />
-            <input
-              placeholder="Instagram"
-              className="input-field"
+            <SocialInput
+              label="Instagram"
+              placeholder="https://instagram.com/..."
               value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
+              onChange={setInstagram}
             />
-            <input
-              placeholder="YouTube"
-              className="input-field"
+            <SocialInput
+              label="YouTube"
+              placeholder="https://youtube.com/..."
               value={youtube}
-              onChange={(e) => setYoutube(e.target.value)}
+              onChange={setYoutube}
             />
-            <input
-              placeholder="WhatsApp"
-              className="input-field"
+            <SocialInput
+              label="WhatsApp"
+              placeholder="https://wa.me/..."
               value={whatsApp}
-              onChange={(e) => setWhatsApp(e.target.value)}
+              onChange={setWhatsApp}
             />
           </div>
         </div>
 
-        {/* Save Button */}
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-primary text-white py-3 rounded-xl font-semibold
-                     hover:opacity-90 transition disabled:opacity-60"
+          className="w-full bg-primary text-white py-2.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60"
         >
           {loading ? "Saving..." : "Save Footer Changes"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/* 🔹 Reusable Social Input */
+function SocialInput({ label, placeholder, value, onChange }) {
+  return (
+    <div className="flex flex-col space-y-1 text-sm">
+      <label className="text-gray-600">{label}</label>
+      <input
+        type="text"
+        placeholder={placeholder}
+        className="w-full border px-3 py-1.5 rounded-lg focus:ring-1 focus:ring-primary focus:outline-none text-sm"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }
