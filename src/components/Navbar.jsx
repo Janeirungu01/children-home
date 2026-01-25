@@ -10,12 +10,13 @@ export default function Navbar() {
           Home
         </HashLink>
 
+        <HashLink href="/#goals" className="hover:underline">
+          Goals
+        </HashLink>
+
         <HashLink to="/#activities" className="hover:underline">
           Activities
         </HashLink>
-        <a href="/#activities" className="hover:underline">
-          Goals
-        </a>
 
         <HashLink to="/#past-activities" className="hover:underline">
           Past
@@ -25,8 +26,7 @@ export default function Navbar() {
           Contact
         </HashLink>
 
-        <HashLink
-          to="/#donate"
+        <HashLink to="/#donate"
           className="bg-white text-primary px-3 py-1 rounded font-semibold hover:bg-gray-100 transition"
         >
           Donate
