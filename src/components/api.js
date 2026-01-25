@@ -1,8 +1,6 @@
 import { API } from "../Config";
 
-/**
- * GET page data by section type
- */
+// GET page data by section type
 export async function fetchPageSection(typeToCreate) {
   const res = await fetch(
     `${API.BASE_URL}${API.GET_PAGE_DATA}?typeToCreate=${typeToCreate}`
@@ -25,7 +23,7 @@ export async function updatePageSection(typeToCreate, sectionData) {
     HEADERS: "headers",
     LINKS: "links",
     CONTACT: "contactRequest",
-    PAYMENTTYPE: "paymentType",
+    PAYMENT: "paymentType",
   };
 
   const key = keyMap[typeToCreate];
