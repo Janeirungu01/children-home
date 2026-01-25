@@ -13,14 +13,11 @@ export default function AdminLayout() {
           <Link to="/admin" className="block py-2 px-4 hover:bg-green-700 rounded">
             Dashboard
           </Link>
+           <Link to="/admin/signup" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Create User
+          </Link>
           <Link to="/admin/hero" className="block py-2 px-4 hover:bg-green-700 rounded">
             Hero
-          </Link>
-          <Link to="/admin/goals" className="block py-2 px-4 hover:bg-green-700 rounded">
-            Goals
-          </Link>
-          <Link to="/admin/about" className="block py-2 px-4 hover:bg-green-700 rounded">
-            About
           </Link>
           <Link to="/admin/documents" className="block py-2 px-4 hover:bg-green-700 rounded">
             Documents
@@ -31,8 +28,8 @@ export default function AdminLayout() {
           <Link to="/admin/ourstory" className="block py-2 px-4 hover:bg-green-700 rounded">
             Our Story
           </Link>
-          <Link to="/admin/donations" className="block py-2 px-4 hover:bg-green-700 rounded">
-            Donations
+          <Link to="/admin/payment" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Payment
           </Link>
           <Link to="/admin/contact" className="block py-2 px-4 hover:bg-green-700 rounded">
             Contact
