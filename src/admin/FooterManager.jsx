@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection, updatePageSection } from "../components/api";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 
 export default function FooterManager() {
   const [contactId, setContactId] = useState(null);
@@ -16,7 +16,9 @@ export default function FooterManager() {
   const [whatsApp, setWhatsApp] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
+  // Load existing footer data
   useEffect(() => {
     async function loadFooterData() {
       try {
@@ -28,19 +30,19 @@ export default function FooterManager() {
         const contactItem = contactRes?.result?.[0];
         if (contactItem) {
           setContactId(contactItem.id);
-          setEmail(contactItem.contactRequest?.email || "");
-          setPhoneNumber(contactItem.contactRequest?.phoneNumber || "");
-          setAddress(contactItem.contactRequest?.address || "");
+          setEmail(contactItem.email || "");
+          setPhoneNumber(contactItem.phoneNumber || "");
+          setAddress(contactItem.address || "");
         }
 
         const linksItem = linksRes?.result?.[0];
         if (linksItem) {
           setLinksId(linksItem.id);
-          setFacebook(linksItem.links?.facebook || "");
-          setTwitter(linksItem.links?.twitter || "");
-          setInstagram(linksItem.links?.instagram || "");
-          setYoutube(linksItem.links?.youtube || "");
-          setWhatsApp(linksItem.links?.whatsApp || "");
+          setFacebook(linksItem.facebook || "");
+          setTwitter(linksItem.twitter || "");
+          setInstagram(linksItem.instagram || "");
+          setYoutube(linksItem.youtube || "");
+          setWhatsApp(linksItem.whatsApp || "");
         }
       } catch (err) {
         console.error("Failed to load footer data", err);
@@ -50,31 +52,61 @@ export default function FooterManager() {
     loadFooterData();
   }, []);
 
-  const handleSubmit = async () => {
-    if (loading) return;
+  // Create / Update handler
+  const handleSave = async () => {
+    if (!email && !phoneNumber) {
+      alert("At least email or phone number is required.");
+      return;
+    }
+
     setLoading(true);
-
     try {
-      await updatePageSection("CONTACT", {
-        id: contactId,
-        email: email.trim(),
-        phoneNumber,
-        address,
-      });
+      if (isCreatingNew) {
+        // CREATE footer (CONTACT + LINKS)
+        await Promise.all([
+          createPageSection("CONTACT", {
+            email: email.trim(),
+            phoneNumber,
+            address,
+          }),
+          createPageSection("LINKS", {
+            facebook,
+            twitter,
+            instagram,
+            youtube,
+            whatsApp,
+          }),
+        ]);
 
-      await updatePageSection("LINKS", {
-        id: linksId,
-        facebook,
-        twitter,
-        instagram,
-        youtube,
-        whatsApp,
-      });
+        alert("New footer created successfully!");
+        setIsCreatingNew(false);
+      } else {
+        // UPDATE footer
+        if (contactId) {
+          await updatePageSection("CONTACT", {
+            id: contactId,
+            email: email.trim(),
+            phoneNumber,
+            address,
+          });
+        }
 
-      alert("Footer updated successfully");
+        if (linksId) {
+          await updatePageSection("LINKS", {
+            id: linksId,
+            facebook,
+            twitter,
+            instagram,
+            youtube,
+            whatsApp,
+          });
+        }
+
+        alert("Footer updated successfully!");
+      }
     } catch (err) {
       console.error(err);
-      alert("Failed to update footer");
+      alert("Failed to save footer");
     } finally {
       setLoading(false);
     }
@@ -82,14 +114,39 @@ export default function FooterManager() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-secondary">
-          Contact Settings
-        </h2>
+      <div className="bg-white shadow-xl rounded-2xl p-6 space-y-6">
+        {/* Header + Add New button */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-secondary">
+            Footer Settings
+          </h2>
+          <button
+            onClick={() => {
+              setIsCreatingNew(true);
+              setContactId(null);
+              setLinksId(null);
 
-        {/* Contact Information */}
+              setEmail("");
+              setPhoneNumber("");
+              setAddress("");
+
+              setFacebook("");
+              setTwitter("");
+              setInstagram("");
+              setYoutube("");
+              setWhatsApp("");
+            }}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+          >
+            Add New Footer
+          </button>
+        </div>
+
+        {/* Contact Info */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-gray-700">Contact Information</h3>
+          <h3 className="text-lg font-semibold text-gray-700">
+            Contact Information
+          </h3>
 
           <input
             type="email"
@@ -116,57 +173,39 @@ export default function FooterManager() {
           />
         </div>
 
-        {/* Social Media Links */}
+        {/* Social Links */}
         <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-gray-700">Social Media Links</h3>
+          <h3 className="text-lg font-semibold text-gray-700">
+            Social Media Links
+          </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            <SocialInput
-              label="Facebook"
-              placeholder="https://facebook.com/..."
-              value={facebook}
-              onChange={setFacebook}
-            />
-            <SocialInput
-              label="Twitter (X)"
-              placeholder="https://x.com/..."
-              value={twitter}
-              onChange={setTwitter}
-            />
-            <SocialInput
-              label="Instagram"
-              placeholder="https://instagram.com/..."
-              value={instagram}
-              onChange={setInstagram}
-            />
-            <SocialInput
-              label="YouTube"
-              placeholder="https://youtube.com/..."
-              value={youtube}
-              onChange={setYoutube}
-            />
-            <SocialInput
-              label="WhatsApp"
-              placeholder="https://wa.me/..."
-              value={whatsApp}
-              onChange={setWhatsApp}
-            />
+            <SocialInput label="Facebook" placeholder="https://facebook.com/..." value={facebook} onChange={setFacebook} />
+            <SocialInput label="Twitter (X)" placeholder="https://x.com/..." value={twitter} onChange={setTwitter} />
+            <SocialInput label="Instagram" placeholder="https://instagram.com/..." value={instagram} onChange={setInstagram} />
+            <SocialInput label="YouTube" placeholder="https://youtube.com/..." value={youtube} onChange={setYoutube} />
+            <SocialInput label="WhatsApp" placeholder="https://wa.me/..." value={whatsApp} onChange={setWhatsApp} />
           </div>
         </div>
 
+        {/* Save / Create button */}
         <button
-          onClick={handleSubmit}
+          onClick={handleSave}
           disabled={loading}
           className="w-full bg-primary text-white py-2.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60"
         >
-          {loading ? "Saving..." : "Save Footer Changes"}
+          {loading
+            ? "Saving..."
+            : isCreatingNew
+            ? "Create Footer"
+            : "Save Footer Changes"}
         </button>
       </div>
     </div>
   );
 }
 
-/* 🔹 Reusable Social Input */
+/* Social input helper */
 function SocialInput({ label, placeholder, value, onChange }) {
   return (
     <div className="flex flex-col space-y-1 text-sm">
