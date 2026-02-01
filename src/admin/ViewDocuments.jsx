@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { API } from "../Config";
+import api from "../api/axios";
+import { API } from "../api/endpoints";
 
 export default function ViewDocuments() {
   const [images, setImages] = useState([]);
@@ -9,24 +10,16 @@ export default function ViewDocuments() {
     fetchImages();
   }, []);
 
-  const fetchImages = async () => {
-    try {
-      const response = await fetch(
-        `${API.BASE_URL}${API.VIEW_ALL_IMAGES}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch images");
-      }
-
-      const data = await response.json();
-      setImages(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchImages = async () => {
+  try {
+    const response = await api.get(API.VIEW_ALL_IMAGES);
+    setImages(response.data);
+  } catch (error) {
+    console.error("Failed to fetch images", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (loading) {
     return <p className="text-center mt-10">Loading images...</p>;
