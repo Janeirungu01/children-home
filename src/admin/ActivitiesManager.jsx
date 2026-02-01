@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { API } from "../Config";
-import axios from "axios";
+import api from "../api/axios";
+import ViewActivities from "./ViewActivities";
 
 export default function ActivitiesManager() {
   const [title, setTitle] = useState("");
@@ -13,52 +13,54 @@ export default function ActivitiesManager() {
     setDocument(e.target.files[0]);
   };
 
-  const handleAdd = async () => {
-    if (!title || !desc || !document) {
-      alert("Please add title, description and document");
-      return;
-    }
+const handleAdd = async () => {
+  if (!title || !desc || !document) {
+    alert("Please add title, description and document");
+    return;
+  }
 
-    const activitiesRequestDTO = {
-      id: "",
-      title,
-      subtitle: location,
-      body: desc,
-      groupName: "headers",
-      documentTitle: document.name,
-    };
+  const activitiesRequestDTO = JSON.stringify({
+    id: "",
+    title,
+    subtitle: location,
+    body: desc,
+    groupName: "HEADERS",
+    documentTitle: document.name,
+  });
 
-    const encodedDTO = encodeURIComponent(
-      JSON.stringify(activitiesRequestDTO)
+  const formData = new FormData();
+  formData.append("document", document);
+
+  try {
+    setLoading(true);
+
+    await api.post(
+      "/activities/create-activities",
+      formData,
+      {
+        params: {
+          activitiesRequestDTO,
+        },
+      }
     );
 
-    const formData = new FormData();
-    formData.append("document", document);
+    alert("Activity created successfully");
 
-    try {
-      setLoading(true);
+    setTitle("");
+    setLocation("");
+    setDesc("");
+    setDocument(null);
+  } catch (err) {
+    console.error(err.response || err);
+    alert("Failed to create activity");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      await axios.post(
-        `${API.BASE_URL}/activities/create-activities?activitiesRequestDTO=${encodedDTO}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      alert("Activity created successfully");
-
-      setTitle("");
-      setLocation("");
-      setDesc("");
-      setDocument(null);
-    } catch (err) {
-      console.error(err.response || err);
-      alert("Failed to create activity");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
+    <>
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
         <h2 className="text-2xl font-bold text-secondary">
@@ -92,7 +94,7 @@ export default function ActivitiesManager() {
 
           <textarea
             placeholder="Description"
-            className="w-full border px-4 py-2 rounded-lg min-h-[120px]"
+            className="w-full border px-4 py-2 rounded-lg min-h-30"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
@@ -107,5 +109,8 @@ export default function ActivitiesManager() {
         </button>
       </div>
     </div>
+
+    <ViewActivities />
+    </>
   );
 }

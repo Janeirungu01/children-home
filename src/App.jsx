@@ -10,8 +10,10 @@ import Footer from "./components/Footer";
 import AdminLayout from "./admin/AdminLayout";
 import SignUpPage from "./components/Signup";
 import LoginPage from "./components/Login";
+import SignOut from "./components/SignOut";
 import Dashboard from "./admin/Dashboard";
 import ActivitiesManager from "./admin/ActivitiesManager";
+import IntroductionManager from "./admin/IntroductionManager";
 import OurStoryManager from "./admin/OurStoryManager";
 import PaymentManager from "./admin/PaymentManager";
 import FooterManager from "./admin/FooterManager";
@@ -37,9 +39,11 @@ function App() {
             <Route path="hero" element={<HeroManager />} />
             <Route path="documents" element={<UploadDocument />} />
             <Route path="ourstory" element={<OurStoryManager />} />
+            <Route path="introduction" element={<IntroductionManager />} />
             <Route path="activities" element={<ActivitiesManager />} />
             <Route path="payment" element={<PaymentManager />} />
             <Route path="contact" element={<FooterManager />} />
+            <Route path="signout" element={<SignOut />} />
           </Route>
         </Routes>
       </BrowserRouter>
