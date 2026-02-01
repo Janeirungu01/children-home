@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection, updatePageSection } from "../components/api";
+import {
+  fetchPageSection,
+  updatePageSection,
+  createPageSection,
+} from "../api/pageApi";
 
 export default function OurStoryManager() {
   const [storyId, setStoryId] = useState(null);
@@ -8,6 +12,7 @@ export default function OurStoryManager() {
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   // Load existing story
   useEffect(() => {
@@ -24,7 +29,6 @@ export default function OurStoryManager() {
         }
       } catch (err) {
         console.error("Failed to fetch Our Story", err);
-        alert("Failed to load story");
       } finally {
         setFetching(false);
       }
@@ -33,23 +37,45 @@ export default function OurStoryManager() {
     loadStory();
   }, []);
 
-  // Update story
-  const handleSubmit = async () => {
-    if (!storyId) return alert("Story ID missing!");
+  // Create / Update handler
+  const handleSave = async () => {
+    if (!title || !body) {
+      alert("Story title and body are required.");
+      return;
+    }
+
     setLoading(true);
-
     try {
-      await updatePageSection("OURSTORY", {
-        id: storyId,
-        ourStoryTitle: title,
-        ourStorySubtitle: subtitle,
-        ourStoryBody: body,
-      });
+      if (isCreatingNew) {
+        // CREATE Our Story
+        await createPageSection("OURSTORY", {
+          ourStoryTitle: title,
+          ourStorySubtitle: subtitle,
+          ourStoryBody: body,
+        });
 
-      alert("Our Story updated successfully!");
+        alert("New Our Story created successfully!");
+        setIsCreatingNew(false);
+      } else {
+        // UPDATE Our Story
+        if (!storyId) {
+          alert("Story record not found. Cannot update.");
+          setLoading(false);
+          return;
+        }
+
+        await updatePageSection("OURSTORY", {
+          id: storyId,
+          ourStoryTitle: title,
+          ourStorySubtitle: subtitle,
+          ourStoryBody: body,
+        });
+
+        alert("Our Story updated successfully!");
+      }
     } catch (err) {
       console.error(err);
-      alert("Failed to update story");
+      alert("Failed to save Our Story");
     } finally {
       setLoading(false);
     }
@@ -66,10 +92,26 @@ export default function OurStoryManager() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-secondary">
-          Our Story Settings
-        </h2>
+        {/* Header + Add New button */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-secondary">
+            Our Story Settings
+          </h2>
+          <button
+            onClick={() => {
+              setIsCreatingNew(true);
+              setStoryId(null);
+              setTitle("");
+              setSubtitle("");
+              setBody("");
+            }}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+          >
+            Add New Story
+          </button>
+        </div>
 
+        {/* Form */}
         <div className="space-y-3">
           <input
             placeholder="Story Title"
@@ -93,12 +135,17 @@ export default function OurStoryManager() {
           />
         </div>
 
+        {/* Save / Create button */}
         <button
-          onClick={handleSubmit}
+          onClick={handleSave}
           disabled={loading}
           className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60"
         >
-          {loading ? "Saving..." : "Save Our Story"}
+          {loading
+            ? "Saving..."
+            : isCreatingNew
+            ? "Create Our Story"
+            : "Save Our Story"}
         </button>
       </div>
     </div>
