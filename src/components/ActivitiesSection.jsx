@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { API } from "../Config";
+import api from "../api/axios";
+import { API } from "../api/endpoints";
 
 export default function ActivitiesSection() {
   const [activities, setActivities] = useState([]);
@@ -11,14 +11,20 @@ export default function ActivitiesSection() {
   }, []);
 
   const fetchActivities = async () => {
-    try {
-      const res = await axios.get(
-        `${API.BASE_URL}/activities/search-activities?groupname=headers&pageSize=50`
-      );
+    setLoading(true);
 
-      setActivities(res.data.result?.content || []);
-    } catch (err) {
-      console.error("Failed to load activities", err);
+    try {
+      const res = await api.get(API.SEARCH_ACTIVITIES, {
+        params: {
+          groupName: "ACTIVITIES",
+          pageSize: 50,
+        },
+      });
+
+      setActivities(res.data?.result?.content ?? []);
+    } catch (error) {
+      console.error("Failed to load activities", error);
+      setActivities([]);
     } finally {
       setLoading(false);
     }
@@ -38,6 +44,7 @@ export default function ActivitiesSection() {
         <span className="text-primary uppercase font-semibold">
           Our Latest News
         </span>
+
         <h2 className="text-secondary text-3xl md:text-4xl font-medium my-2">
           Recent Activities and Projects
         </h2>
@@ -58,7 +65,7 @@ export default function ActivitiesSection() {
                   </span>
                 </div>
 
-                <div className="p-4">
+                <div className="p-4 text-left">
                   <h3 className="text-secondary text-lg mb-1 font-medium capitalize">
                     {a.title}
                   </h3>
@@ -68,7 +75,9 @@ export default function ActivitiesSection() {
                     {a.subtitle}
                   </p>
 
-                  <p className="text-sm text-text">{a.body}</p>
+                  <p className="text-sm text-text line-clamp-3">
+                    {a.body}
+                  </p>
                 </div>
               </div>
             ))}

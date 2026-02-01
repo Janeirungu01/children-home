@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { API } from "../Config";
+import api from "../api/axios";
+import { API } from "../api/endpoints";
 import ViewDocuments from "./ViewDocuments";
 
 export default function UploadDocument() {
@@ -9,41 +10,75 @@ export default function UploadDocument() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!file) {
-      alert("Please select a file");
-      return;
-    }
+  if (!file) {
+    alert("Please select a file");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("document", file);
-    formData.append("groupName", groupName);
-    formData.append("documentTitle", documentTitle);
+  const formData = new FormData();
+  formData.append("document", file);
+  formData.append("groupName", groupName);
+  formData.append("documentTitle", documentTitle);
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
+    await api.post(API.UPLOAD_IMAGE, formData);
 
-      const response = await fetch(`${API.BASE_URL}${API.UPLOAD_IMAGE}`, {
-        method: "POST",
-        body: formData,
-      });
+    alert("Upload successful!");
+    setFile(null);
+    setGroupName("");
+    setDocumentTitle("");
+  } catch (error) {
+    console.error("Upload error:", error.response || error);
+    alert("Upload failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
+  
+  //   e.preventDefault();
 
-      alert("Upload successful!");
-      setFile(null);
-      setGroupName("");
-      setDocumentTitle("");
-    } catch (error) {
-      console.error(error);
-      alert("Upload failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   if (!file) {
+  //     alert("Please select a file");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("document", file);
+  //   formData.append("groupName", groupName);
+  //   formData.append("documentTitle", documentTitle);
+
+  //   try {
+  //     setLoading(true);
+
+  //     // const response = await fetch(`${API.BASE_URL}${API.UPLOAD_IMAGE}`, {
+  //     //   method: "POST",
+  //     //   body: formData,
+  //     // });
+  //     const response = await api.post(API.UPLOAD_IMAGE, formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Upload failed");
+  //     }
+
+  //     alert("Upload successful!");
+  //     setFile(null);
+  //     setGroupName("");
+  //     setDocumentTitle("");
+  //   } catch (error) {
+  //     console.error(error);
+  //     alert("Upload failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <>
@@ -51,7 +86,7 @@ export default function UploadDocument() {
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Upload Document
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* File Input */}
           <div>

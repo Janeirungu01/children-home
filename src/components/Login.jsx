@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API } from "../Config";
+import { jwtDecode } from "jwt-decode";
+import apiPublic from "../api/axiosPublic";
+import { API } from "../api/endpoints";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -10,40 +12,46 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-     try {
-      const response = await fetch(`${API.BASE_URL}${API.LOGIN}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: userName,
-          password: password,
-        }),
+    try {
+      const response = await apiPublic.post(API.LOGIN, {
+        username: userName,
+        password,
       });
 
-      const data = await response.json();
-
-      // login failed
-      if (!response.ok) {
-        alert(data.message || "Invalid username or password");
+      const token = response?.data?.result?.sessionId;
+      if (!token) {
+        alert("Login failed: token not found.");
         return;
       }
 
-      // login succeeded
-      localStorage.setItem("token", data.result.token);
-      localStorage.setItem("role", data.result.role);
+      // Store token
+      localStorage.setItem("token", token);
 
-      // Only navigate to /admin if the user is ADMIN
-      if (data.result.role === "ADMIN") {
+      // Decode JWT
+      const decoded = jwtDecode(token);
+      const role = decoded?.role;
+
+      if (!role) {
+        alert("Login failed: role not found.");
+        return;
+      }
+
+      localStorage.setItem("role", role);
+
+      // Role-based navigation
+      if (role === "ADMIN") {
         navigate("/admin");
       } else {
-        // login succeeds but role is not admin
         alert("Access denied. You do not have admin privileges.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Unable to login. Please try again.");
+
+      const message =
+        error?.response?.data?.message ||
+        "Incorrect credentials. Please try again.";
+
+      alert(message);
     }
   };
 
@@ -97,16 +105,6 @@ export default function LoginPage() {
             Log In
           </button>
         </form>
-
-        <p className="mt-4 text-sm text-gray-600">
-          Don't have an account yet?{" "}
-          <button
-            onClick={() => navigate("/signup")}
-            className="text-primary font-bold hover:underline"
-          >
-            Sign Up
-          </button>
-        </p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import backgroundImage from "../assets/children8.jpg";
 import img2 from "../assets/children1.jpg";
-import { fetchPageSection } from "../components/api";
+import { fetchPageSection } from "../api/pageApi";
 
 export default function Hero() {
   const [heroData, setHeroData] = useState({
@@ -14,7 +14,7 @@ export default function Hero() {
     async function loadHero() {
       try {
         const res = await fetchPageSection("HEADERS");
-        const item = res?.result?.[0]; // ✅ backend returns array
+        const item = res?.result?.[0]; 
 
         if (item) {
           setHeroData({
@@ -33,7 +33,7 @@ export default function Hero() {
 
   return (
     <div className="bg-white">
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden shadow-lg">
+      <div className="relative h-100 md:h-125 overflow-hidden shadow-lg">
         <div className="absolute inset-0">
           <div className="slider-wrapper">
             <div className="slider-track">

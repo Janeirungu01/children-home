@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection } from "../components/api";
+import { fetchPageSection } from "../api/pageApi";
 
 export default function Donations() {
   const [payment, setPayment] = useState(null);
