@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection, updatePageSection } from "../components/api";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 
 export default function PaymentManager() {
   const [paymentId, setPaymentId] = useState(null);
@@ -7,6 +7,7 @@ export default function PaymentManager() {
   const [businessNumber, setBusinessNumber] = useState("");
   const [paymentAccount, setPaymentAccount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   // Load existing payment data
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function PaymentManager() {
       try {
         const res = await fetchPageSection("PAYMENT");
         const item = res?.result?.[0];
+
         if (item) {
           setPaymentId(item.id);
           setPaymentMethod(item.paymentMethod || "");
@@ -28,23 +30,45 @@ export default function PaymentManager() {
     loadPaymentData();
   }, []);
 
-  // Save updates
-  const handleSubmit = async () => {
-    if (!paymentId) return alert("Payment ID missing!");
+  // Create / Update handler
+  const handleSave = async () => {
+    if (!paymentMethod || !businessNumber) {
+      alert("Payment method and business number are required.");
+      return;
+    }
+
     setLoading(true);
-
     try {
-      await updatePageSection("PAYMENT", {
-        id: paymentId,
-        paymentMethod,
-        businessNumber,
-        paymentAccount,
-      });
+      if (isCreatingNew) {
+        // CREATE payment
+        await createPageSection("PAYMENT", {
+          paymentMethod,
+          businessNumber,
+          paymentAccount,
+        });
 
-      alert("Payment details updated successfully!");
+        alert("New payment method created successfully!");
+        setIsCreatingNew(false);
+      } else {
+        // UPDATE payment
+        if (!paymentId) {
+          alert("Payment record not found. Cannot update.");
+          setLoading(false);
+          return;
+        }
+
+        await updatePageSection("PAYMENT", {
+          id: paymentId,
+          paymentMethod,
+          businessNumber,
+          paymentAccount,
+        });
+
+        alert("Payment details updated successfully!");
+      }
     } catch (err) {
       console.error(err);
-      alert("Failed to update payment details");
+      alert("Failed to save payment details");
     } finally {
       setLoading(false);
     }
@@ -53,8 +77,26 @@ export default function PaymentManager() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-secondary">Payment Settings</h2>
+        {/* Header + Add New button */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-secondary">
+            Payment Settings
+          </h2>
+          <button
+            onClick={() => {
+              setIsCreatingNew(true);
+              setPaymentId(null);
+              setPaymentMethod("");
+              setBusinessNumber("");
+              setPaymentAccount("");
+            }}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+          >
+            Add New Payment
+          </button>
+        </div>
 
+        {/* Form */}
         <div className="space-y-3">
           <input
             placeholder="Payment Method (e.g., PAYBILL)"
@@ -62,12 +104,14 @@ export default function PaymentManager() {
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           />
+
           <input
             placeholder="Business Number"
             className="w-full border px-4 py-2 rounded-lg"
             value={businessNumber}
             onChange={(e) => setBusinessNumber(e.target.value)}
           />
+
           <input
             placeholder="Account Number"
             className="w-full border px-4 py-2 rounded-lg"
@@ -76,12 +120,17 @@ export default function PaymentManager() {
           />
         </div>
 
+        {/* Save / Create button */}
         <button
-          onClick={handleSubmit}
+          onClick={handleSave}
           disabled={loading}
           className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60"
         >
-          {loading ? "Saving..." : "Save Payment Details"}
+          {loading
+            ? "Saving..."
+            : isCreatingNew
+            ? "Create Payment"
+            : "Save Payment Details"}
         </button>
       </div>
     </div>
