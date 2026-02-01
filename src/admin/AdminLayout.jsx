@@ -1,4 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
+import SignOut from "../components/SignOut";
 
 export default function AdminLayout() {
   return (
@@ -22,6 +23,9 @@ export default function AdminLayout() {
           <Link to="/admin/documents" className="block py-2 px-4 hover:bg-green-700 rounded">
             Documents
           </Link>
+          <Link to="/admin/introduction" className="block py-2 px-4 hover:bg-green-700 rounded">
+            Introduction
+          </Link>
           <Link to="/admin/activities" className="block py-2 px-4 hover:bg-green-700 rounded">
             Activities
           </Link>
@@ -35,6 +39,9 @@ export default function AdminLayout() {
             Contact
           </Link>
         </nav>
+          <div className="p-4 border-t border-white">
+          <SignOut />
+        </div>
       </aside>
 
       {/* Main Content */}
