@@ -1,9 +1,10 @@
 import api from "./axios";
+import apiPublic from "./axiosPublic";
 import { API } from "./endpoints";
 
 // GET page data
 export async function fetchPageSection(typeToCreate) {
-  const res = await api.get(API.GET_PAGE_DATA, {
+  const res = await apiPublic.get(API.GET_PAGE_DATA, {
     params: { typeToCreate },
   });
   return res.data;
