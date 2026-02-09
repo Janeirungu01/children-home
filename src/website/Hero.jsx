@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import backgroundImage from "../assets/children8.jpg";
-import img2 from "../assets/children1.jpg";
 import { fetchPageSection } from "../api/pageApi";
+import backgroundImage from "../assets/children8.jpg";
+import img2 from "../assets/children12.jpg";
+import { HashLink } from "react-router-hash-link";
 
 export default function Hero() {
   const [heroData, setHeroData] = useState({
@@ -11,25 +12,26 @@ export default function Hero() {
   });
 
   useEffect(() => {
-    async function loadHero() {
-      try {
-        const res = await fetchPageSection("HEADERS");
-        const item = res?.result?.[0]; 
+  async function loadHero() {
+    try {
+      const res = await fetchPageSection("HEADERS");
+      const item = res?.result?.[0];
 
-        if (item) {
-          setHeroData({
-            headerTitle: item.headerTitle || heroData.headerTitle,
-            motto: item.motto || heroData.motto,
-            mission: item.mission || heroData.mission,
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load hero data", err);
+      if (item) {
+        setHeroData(prev => ({
+          headerTitle: item.headerTitle || prev.headerTitle,
+          motto: item.motto || prev.motto,
+          mission: item.mission || prev.mission,
+        }));
       }
+    } catch (err) {
+      console.error("Failed to load hero data", err);
     }
+  }
 
-    loadHero();
-  }, []);
+  loadHero();
+}, []);
+
 
   return (
     <div className="bg-white">
@@ -59,10 +61,11 @@ export default function Hero() {
           <p className="text-white text-lg md:text-2xl mb-6">
             Mission: {heroData.mission}
           </p>
-
-          <button className="bg-green-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-700 transition">
-            Support a Child
-          </button>
+                  <HashLink to="/#donate"
+                    className="bg-green-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-700 transition"
+                  >
+                    Support a Child
+                  </HashLink>
         </div>
       </div>
     </div>
