@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
 
 export default function OurStory() {
@@ -11,46 +11,44 @@ export default function OurStory() {
   });
 
   useEffect(() => {
-    async function fetchOurStory() {
-      try {
-        const { data } = await api.get(API.GET_PAGE_DATA, {
-          params: { typeToCreate: "OURSTORY" },
-        });
+  async function fetchOurStory() {
+    try {
+      const { data } = await apiPublic.get(API.GET_PAGE_DATA, {
+        params: { typeToCreate: "OURSTORY" },
+      });
 
-        const item = data?.result?.[0];
+      const item = data?.result?.[0];
 
-        if (item) {
-          setOurStory({
-            ourStoryTitle:
-              item.ourStoryTitle || ourStory.ourStoryTitle,
-            ourStorySubtitle:
-              item.ourStorySubtitle || ourStory.ourStorySubtitle,
-            ourStoryBody:
-              item.ourStoryBody || ourStory.ourStoryBody,
-          });
-        }
-      } catch {
-        console.warn(
-          "Our Story backend not available, using fallback content"
-        );
+      if (item) {
+        setOurStory(prev => ({
+          ourStoryTitle: item.ourStoryTitle || prev.ourStoryTitle,
+          ourStorySubtitle: item.ourStorySubtitle || prev.ourStorySubtitle,
+          ourStoryBody: item.ourStoryBody || prev.ourStoryBody,
+        }));
       }
+    } catch {
+      console.warn(
+        "Our Story backend not available, using fallback content"
+      );
     }
+  }
 
-    fetchOurStory();
-  }, []);
+  fetchOurStory();
+}, []);
+
 
   return (
     <section id="story" className="flex justify-center">
-      <div className="flex flex-col items-center mt-10 mb-10 px-4">
-        <span className="text-sm uppercase font-semibold text-primary">
+      <div className="flex flex-col items-center mt-8 mb-10 px-4">
+        <span className="text-primary uppercase font-semibold mb-1">
           {ourStory.ourStoryTitle}
         </span>
 
-        <h2 className="text-[40px] font-medium text-secondary mt-1 text-center">
+        <h2 className="text-secondary text-3xl md:text-4xl font-medium mb-1 text-center"> 
           {ourStory.ourStorySubtitle}
         </h2>
 
-        <p className="w-[90%] text-base text-center leading-6 text-text mt-2">
+        <p className="w-[90%] text-center leading-6 text-text text-sm mt-2">
           {ourStory.ourStoryBody}
         </p>
       </div>

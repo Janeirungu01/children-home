@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  fetchPageSection,
-  updatePageSection,
-  createPageSection,
-} from "../api/pageApi";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 
 export default function OurStoryManager() {
   const [storyId, setStoryId] = useState(null);
