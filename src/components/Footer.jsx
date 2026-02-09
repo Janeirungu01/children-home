@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios"; 
+import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
 
 export default function Footer() {
@@ -13,8 +13,8 @@ export default function Footer() {
     async function fetchFooterData() {
       try {
         const [contactRes, linksRes] = await Promise.all([
-          api.get(API.GET_PAGE_DATA, { params: { typeToCreate: "CONTACT" } }),
-          api.get(API.GET_PAGE_DATA, { params: { typeToCreate: "LINKS" } }),
+          apiPublic.get(API.GET_PAGE_DATA, { params: { typeToCreate: "CONTACT" } }),
+          apiPublic.get(API.GET_PAGE_DATA, { params: { typeToCreate: "LINKS" } }),
         ]);
 
         if (!cancelled) {

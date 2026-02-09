@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
+import DocumentImage from "../admin/DocumentImage";
 
 export default function ActivitiesSection() {
   const [activities, setActivities] = useState([]);
@@ -14,7 +15,7 @@ export default function ActivitiesSection() {
     setLoading(true);
 
     try {
-      const res = await api.get(API.SEARCH_ACTIVITIES, {
+      const res = await apiPublic.get(API.SEARCH_ACTIVITIES, {
         params: {
           groupName: "ACTIVITIES",
           pageSize: 50,
@@ -58,11 +59,8 @@ export default function ActivitiesSection() {
                 key={a.id}
                 className="bg-white rounded-tr-3xl rounded-bl-3xl shadow overflow-hidden"
               >
-                {/* Document placeholder */}
-                <div className="h-40 w-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-sm text-gray-500">
-                    {a.document?.documentTitle || "Document"}
-                  </span>
+                <div className="h-40 w-full bg-gray-200 flex overflow-hidden">
+                    <DocumentImage documentId={a.document?.documentId} alt={a.title} />
                 </div>
 
                 <div className="p-4 text-left">
@@ -75,7 +73,7 @@ export default function ActivitiesSection() {
                     {a.subtitle}
                   </p>
 
-                  <p className="text-sm text-text line-clamp-3">
+                  <p className="text-sm text-text">
                     {a.body}
                   </p>
                 </div>

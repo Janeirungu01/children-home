@@ -51,9 +51,9 @@ const fetchImages = async () => {
                 <p className="text-xs text-gray-500">
                   {item.contentType}
                 </p>
-                <p className="text-xs text-gray-500">
+                {/* <p className="text-xs text-gray-500">
                   Group: {item.documentId}
-                </p>
+                </p> */}
               </div>
             </div>
           ))}
