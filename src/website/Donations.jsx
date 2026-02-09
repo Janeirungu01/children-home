@@ -45,13 +45,13 @@ export default function Donations() {
 
         {/* Header */}
         <div className="text-center pt-4 mb-4 mt-4">
-          <span className="text-primary uppercase font-semibold tracking-wide">
+          <span className="text-primary uppercase font-semibold ">
             We Need Your Help
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mt-2 mb-4">
+          <h2 className="text-secondary text-2xl md:text-3xl mt-2 mb-4 ">
             Support Our Cause
           </h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
+          <p className="text-secondary max-w-3xl mx-auto">
             Your generous donations help us provide essential services and support
             to the children in our care. Every contribution, big or small, makes a
             significant impact on their lives.
@@ -63,7 +63,7 @@ export default function Donations() {
 
           {/* Left */}
           <div>
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold mb-4">
               How to Donate
             </h3>
 

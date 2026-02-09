@@ -27,7 +27,6 @@ export default function GoalSection() {
   return (
     <section id="goals" className="py-4 bg-white">
       <div className="max-w-7xl mx-auto text-center px-4">
-        {/* <span className="text-xl uppercase font-bold text-primary mb-2">Our Goal</span> */}
         <span className="text-primary uppercase font-semibold">Our Goal</span>
         <h2 className="text-secondary text-3xl md:text-4xl font-medium my-2">
           Comprehensive Support for Orphans
@@ -49,12 +48,6 @@ export default function GoalSection() {
           ))}
         </div>
       </div>
-      {/* <div className="mt-16">
-        <VideoThumbnail
-        videoId="dQw4w9WgXcQ"
-
-        />
-      </div> */}
     </section>
   );
 }

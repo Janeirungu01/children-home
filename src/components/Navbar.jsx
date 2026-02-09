@@ -15,11 +15,11 @@ export default function Navbar() {
         </HashLink>
 
         <HashLink to="/#activities" className="hover:underline">
-          Activities
+          Programs
         </HashLink>
 
-        <HashLink to="/#past-activities" className="hover:underline">
-          Past
+        <HashLink to="/#story" className="hover:underline">
+          About Us
         </HashLink>
 
         <HashLink to="/#contact" className="hover:underline">
