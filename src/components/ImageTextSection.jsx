@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import children9 from "../assets/children9.jpg";
+// import children9 from "../assets/children12.jpg";
+import VideoThumbnail from "./videoThumbnail";
 import { fetchPageSection } from "../api/pageApi";
 
 export default function ImageTextSection() {
@@ -36,17 +37,23 @@ export default function ImageTextSection() {
 
 
   return (
-    <section className="py-16">
+    <section className="py-10">
       <div className="max-w-7xl px-4 mx-auto bg-white rounded-tr-3xl flex flex-col md:flex-row overflow-hidden">
         {/* Image */}
-        <div
+        {/* <div
           className="md:w-1/2 h-64 md:h-auto bg-cover bg-center"
           style={{ backgroundImage: `url(${children9})` }}
+        /> */}
+          <div className="md:w-1/2">
+        <VideoThumbnail
+        videoId="dQw4w9WgXcQ"
+
         />
+      </div>
 
         {/* Text */}
         <div className="md:w-1/2 p-8 flex flex-col justify-center items-center text-center">
-          <span className="text-primary uppercase font-medium">
+          <span className="text-primary uppercase font-semibold">
             {introData.introductionTitle}
           </span>
 
