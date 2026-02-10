@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // NEW
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,10 +26,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Store token
       localStorage.setItem("token", token);
 
-      // Decode JWT
       const decoded = jwtDecode(token);
       const role = decoded?.role;
 
@@ -38,7 +38,6 @@ export default function LoginPage() {
 
       localStorage.setItem("role", role);
 
-      // Role-based navigation
       if (role === "ADMIN") {
         navigate("/admin");
       } else {
@@ -73,29 +72,42 @@ export default function LoginPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-md p-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div>
+  <label className="block text-sm font-medium mb-1">Password</label>
+
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter your password"
+      className="w-full border border-gray-300 rounded-md p-2 pr-10"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+      aria-label={showPassword ? "Hide password" : "Show password"}
+    >
+      {showPassword ? <FaEyeSlash /> : <FaEye />}
+    </button>
+  </div>
+</div>
+
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2">
               <input type="checkbox" />
               Remember Me
             </label>
-            <button
+            {/* <button
               type="button"
               className="text-primary font-medium hover:underline"
             >
               Forgot Password?
-            </button>
+            </button> */}
           </div>
 
           <button
