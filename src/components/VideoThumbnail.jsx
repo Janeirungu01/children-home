@@ -2,22 +2,23 @@ import { useState } from "react";
 
 export default function VideoThumbnail({ videoId }) {
   const [play, setPlay] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className="relative w-full aspect-video rounded-lg overflow-hidden group">
-      {!play ? (
+    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+      
+      {/* Thumbnail (stays until iframe loads) */}
+      {!play && (
         <button
           onClick={() => setPlay(true)}
-          className="w-full h-full focus:outline-none"
+          className="absolute inset-0 w-full h-full focus:outline-none group"
         >
-          {/* Thumbnail */}
           <img
             src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
             alt="Video thumbnail"
             className="w-full h-full object-cover"
           />
 
-          {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center
                           bg-black/0 group-hover:bg-black/40
                           transition">
@@ -34,13 +35,19 @@ export default function VideoThumbnail({ videoId }) {
             </div>
           </div>
         </button>
-      ) : (
+      )}
+
+      {/* Iframe */}
+      {play && (
         <iframe
-          className="w-full h-full"
+          className={`w-full h-full transition-opacity duration-500 ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
           title="YouTube video"
           allow="autoplay; encrypted-media"
           allowFullScreen
+          onLoad={() => setLoaded(true)}
         />
       )}
     </div>
