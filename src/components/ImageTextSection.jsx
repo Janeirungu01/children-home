@@ -46,7 +46,7 @@ export default function ImageTextSection() {
         /> */}
           <div className="md:w-1/2">
         <VideoThumbnail
-        videoId="dQw4w9WgXcQ"
+        videoId="gIVEb_AoW58"
 
         />
       </div>
