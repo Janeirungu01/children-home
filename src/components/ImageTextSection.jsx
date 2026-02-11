@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // import children9 from "../assets/children12.jpg";
-import VideoThumbnail from "./videoThumbnail";
+import VideoThumbnail from "./VideoThumbnail";
 import { fetchPageSection } from "../api/pageApi";
 
 export default function ImageTextSection() {

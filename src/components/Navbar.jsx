@@ -4,7 +4,6 @@ export default function Navbar() {
   return (
     <nav className="bg-primary text-white px-4 py-6 flex justify-between items-center">
       <h3 className="font-bold text-xl">Brighter Together Foundation</h3>
-
       <div className="space-x-6 hidden md:flex items-center">
         <HashLink to="/" className="hover:underline">
           Home

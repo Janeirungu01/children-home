@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchPageSection } from "../api/pageApi";
-import backgroundImage from "../assets/children8.jpg";
-import img2 from "../assets/children12.jpg";
+import backgroundImage from "../assets/children15.jpeg";
+import img2 from "../assets/children14.jpeg";
 import { HashLink } from "react-router-hash-link";
 
 export default function Hero() {
@@ -35,7 +35,7 @@ export default function Hero() {
 
   return (
     <div className="bg-white">
-      <div className="relative h-100 md:h-125 overflow-hidden shadow-lg">
+      <div className="relative h-105 md:h-130 overflow-hidden shadow-lg">
         <div className="absolute inset-0">
           <div className="slider-wrapper">
             <div className="slider-track">
