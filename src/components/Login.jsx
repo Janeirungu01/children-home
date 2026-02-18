@@ -38,7 +38,7 @@ export default function LoginPage() {
 
       localStorage.setItem("role", role);
 
-      if (role === "ADMIN") {
+      if (role === "SUPER_ADMIN") {
         navigate("/admin");
       } else {
         alert("Access denied. You do not have admin privileges.");
