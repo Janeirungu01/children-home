@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  children-home-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: "no"   # runs once, copies files, exits — not a long-running container
