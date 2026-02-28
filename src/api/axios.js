@@ -1,8 +1,8 @@
 import axios from "axios";
-import { VITE_API_URL} from "../config"
+import { API_BASE_URL} from "../config"
 
 const api = axios.create({
-  baseURL: VITE_API_URL
+  baseURL: API_BASE_URL
 });
 
 // Attach JWT automatically
