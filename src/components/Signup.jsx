@@ -87,7 +87,7 @@ export default function SignUpPage() {
             onChange={(e) => setRole(e.target.value)}
           >
             <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
+            <option value="SUPER_ADMIN">Super Admin</option>
           </select>
 
           <button
