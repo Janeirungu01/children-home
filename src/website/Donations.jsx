@@ -1,9 +1,27 @@
 import { useEffect, useState } from "react";
 import { fetchPageSection } from "../api/pageApi";
+import { useDonation } from "../hooks/useDonation";
+import DonationModal from "../components/DonationModal";
+import { FaHeart, FaMobileAlt, FaCreditCard, FaShieldAlt, FaCheckCircle, FaArrowRight } from "react-icons/fa";
+import donateImage from "../assets/children14.jpeg";
+
+const impactItems = [
+  { amount: "KES 500", impact: "Provides meals for a child for a week" },
+  { amount: "KES 2,000", impact: "Covers school supplies for a term" },
+  { amount: "KES 5,000", impact: "Funds healthcare checkup and medicine" },
+  { amount: "KES 10,000", impact: "Supports a child's education for a month" },
+];
+
+const paymentOptions = [
+  { icon: <FaMobileAlt className="w-4 h-4" />, name: "M-PESA" },
+  { icon: <FaCreditCard className="w-4 h-4" />, name: "Visa/Mastercard" },
+  { icon: <FaMobileAlt className="w-4 h-4" />, name: "Airtel Money" },
+];
 
 export default function Donations() {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { openDonationModal } = useDonation();
 
   useEffect(() => {
     let cancelled = false;
@@ -12,104 +30,147 @@ export default function Donations() {
       try {
         const res = await fetchPageSection("PAYMENT");
         const item = res?.result?.[0] || null;
-
-        if (!cancelled) {
-          setPayment(item);
-        }
+        if (!cancelled) setPayment(item);
       } catch (err) {
-        if (!cancelled) {
-          console.error("Failed to load payment info", err);
-        }
+        if (!cancelled) console.error("Failed to load payment info", err);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
     loadPayment();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  if (loading) {
-    return (
-      <section className="bg-gray-50 py-10 text-center">
-        Loading donation details...
-      </section>
-    );
-  }
-
   return (
-    <section id="donate" className="bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4">
-
-        {/* Header */}
-        <div className="text-center pt-4 mb-4 mt-4">
-          <span className="text-primary uppercase font-semibold ">
-            We Need Your Help
-          </span>
-          <h2 className="text-secondary text-2xl md:text-3xl mt-2 mb-4 ">
-            Support Our Cause
+    <section id="donate" className="py-20 bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <FaHeart className="w-3 h-3" />
+            Make a Difference
+          </div>
+          <h2
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+          >
+            Your Donation Changes Lives
           </h2>
-          <p className="text-secondary max-w-3xl mx-auto">
-            Your generous donations help us provide essential services and support
-            to the children in our care. Every contribution, big or small, makes a
-            significant impact on their lives.
+          <p className="text-gray-600 text-lg">
+            Every contribution helps provide essential services and support to the children in our care.
           </p>
         </div>
 
-        {/* Content */}
-        <div className="p-6 md:p-10 grid md:grid-cols-2 gap-8 items-center">
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Side - Image & Impact */}
+          <div className="space-y-8">
+            {/* Image */}
+            <div className="relative rounded-2xl overflow-hidden shadow-xl">
+              <img
+                src={donateImage}
+                alt="Children we support"
+                className="w-full h-[300px] md:h-[350px] object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              {/* Overlay Text */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <p className="text-white/90 text-sm mb-2">Together we've helped</p>
+                <div className="text-3xl font-bold text-white">150+ Children</div>
+              </div>
+            </div>
 
-          {/* Left */}
-          <div>
-            <h3 className="text-2xl font-semibold mb-4">
-              How to Donate
-            </h3>
-
-            <p className="text-gray-700 mb-4">
-              <span className="font-semibold text-primary">
-                {payment?.paymentMethod || "Mpesa"} Transfer:
-              </span>{" "}
-              Use the following details to transfer your donation directly.
-            </p>
-
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <span className="font-semibold">Account Name:</span>{" "}
-                <span>Brighter Together Foundation</span>
-              </p>
-
-              <p>
-                <span className="font-semibold">Business Number:</span>{" "}
-                <span className="font-semibold text-primary">
-                  {payment?.businessNumber || "-"}
-                </span>
-              </p>
-
-              <p>
-                <span className="font-semibold">Account Number:</span>{" "}
-                <span className="font-semibold text-primary">
-                  {payment?.paymentAccount || "-"}
-                </span>
-              </p>
+            {/* Impact Cards */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <h3 className="font-bold text-gray-900 mb-4">Your Impact</h3>
+              <div className="space-y-3">
+                {impactItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="w-20 text-green-600 font-bold text-sm">{item.amount}</div>
+                    <div className="flex-1 text-gray-600 text-sm">{item.impact}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Right */}
-          <div className="text-center md:text-left">
-            <p className="text-gray-600 mb-6">
-              Your support goes directly to food, education, healthcare and shelter
-              for the children. Thank you for making a difference.
-            </p>
+          {/* Right Side - Donation CTA */}
+          <div className="bg-white rounded-2xl p-8 md:p-10 shadow-xl border border-gray-100">
+            {/* Heading */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaHeart className="w-7 h-7 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Donate Today</h3>
+              <p className="text-gray-600">
+                Choose your preferred payment method and make a secure donation
+              </p>
+            </div>
 
-            <button className="bg-green-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-700 transition">
-              Donate Now
+            {/* Payment Options Preview */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {paymentOptions.map((option, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full text-sm text-gray-600"
+                >
+                  {option.icon}
+                  <span>{option.name}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Button */}
+            <button
+              onClick={openDonationModal}
+              className="w-full group flex items-center justify-center gap-3 bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300"
+            >
+              <FaHeart className="group-hover:scale-110 transition-transform" />
+              <span>Donate Now</span>
+              <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-          </div>
 
+            {/* Trust Indicators */}
+            <div className="mt-6 pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <FaShieldAlt className="text-green-500" />
+                  <span>Secure Payment</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaCheckCircle className="text-green-500" />
+                  <span>100% to Children</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Manual Payment Info */}
+            {!loading && payment && (
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <p className="text-sm text-gray-500 text-center mb-3">Or pay directly via M-PESA Paybill:</p>
+                <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Paybill:</span>
+                    <span className="font-bold text-gray-900">{payment?.businessNumber || "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Account:</span>
+                    <span className="font-bold text-gray-900">{payment?.paymentAccount || "—"}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Donation Modal */}
+      <DonationModal />
     </section>
   );
 }

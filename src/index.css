@@ -1,35 +1,144 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap'); */
 @import "tailwindcss";
 
-body {
-  font-family: 'Roboto', sans-serif;
+/* ========================================
+   TYPOGRAPHY - Global Font Setup
+   ======================================== */
+
+:root {
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  
+  /* Brand Colors */
+  --color-primary: #355E3B;
+  --color-primary-light: #4a7c52;
+  --color-primary-dark: #2a4a2f;
+  --color-accent: #006727;
+  --color-background: #E8F5EE;
 }
 
+/* Base Typography */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Display headings use Playfair */
+.font-display,
+h1, h2 {
+  font-family: var(--font-display);
+}
+
+/* Paragraph spacing */
+p {
+  margin-bottom: 1rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   TAILWIND UTILITIES
+   ======================================== */
 
 @layer utilities {
+  /* Brand Colors */
   .bg-primary {
-    background-color: #355E3B;
+    background-color: var(--color-primary);
+  }
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
   }
   .bg-secondary {
-    background-color: #E8F5EE;
+    background-color: var(--color-background);
   }
   .text-primary {
-    color: #006727;
+    color: var(--color-accent);
+  }
+  .text-secondary {
+    color: #1f2937;
+  }
+  .text-text {
+    color: #4b5563;
+  }
+  
+  /* Glass Effects */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-dark {
+    background: rgba(26, 46, 28, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Container */
+  .container-custom {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
   }
 }
 
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Ken Burns effect for hero backgrounds */
 @keyframes kenburns {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(1.1);
-  }
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
 }
 
 .hero-bg {
   animation: kenburns 20s ease-in-out infinite alternate;
 }
+
+/* Float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Slide animations */
 .slider-wrapper {
   width: 100%;
   height: 100%;
@@ -51,11 +160,71 @@ body {
   background-position: center;
 }
 
-/* Smooth horizontal slide */
 @keyframes slide {
   0% { transform: translateX(0%); }
   45% { transform: translateX(0%); }
   50% { transform: translateX(-50%); }
   95% { transform: translateX(-50%); }
   100% { transform: translateX(0%); }
+}
+
+/* Pulse animation for status indicators */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* ========================================
+   FOCUS STATES (Accessibility)
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   SELECTION STYLING
+   ======================================== */
+
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--color-primary);
+  color: white;
 }

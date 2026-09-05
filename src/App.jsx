@@ -18,9 +18,17 @@ import OurStoryManager from "./admin/OurStoryManager";
 import PaymentManager from "./admin/PaymentManager";
 import FooterManager from "./admin/FooterManager";
 
+import { AppProvider } from "./context/AppContext";
+import Notifications from "./components/Notifications";
+import DonationTracker from "./components/DonationTracker";
+import { DonationPersistence } from "./hooks/usePersistDonations";
+
 function App() {
   return (
-    <>
+    <AppProvider>
+      <Notifications />
+      <DonationTracker />
+      <DonationPersistence />
       <BrowserRouter>
         <Routes>
           {/* Public Website */}
@@ -46,7 +54,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </>
+    </AppProvider>
   );
 }
 
