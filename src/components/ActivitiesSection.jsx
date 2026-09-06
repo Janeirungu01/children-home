@@ -19,7 +19,9 @@ import {
   FaSave,
   FaSpinner,
   FaPause,
-  FaPlay
+  FaPlay,
+  FaRandom,
+  FaSortNumericDown
 } from "react-icons/fa";
 
 export default function ActivitiesSection() {
@@ -121,85 +123,17 @@ export default function ActivitiesSection() {
 
         {/* Featured Activity Showcase */}
         {activities.length > 0 && featuredActivity && (
-          <div className="relative mb-16 rounded-3xl overflow-hidden shadow-2xl group">
-            <div className="relative h-[400px] md:h-[500px]">
-              {featuredActivity.document?.documentId ? (
-                <DocumentImage
-                  documentId={featuredActivity.document.documentId}
-                  alt={featuredActivity.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                  <FaImages className="w-20 h-20 text-white/30" />
-                </div>
-              )}
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-                <div className="max-w-2xl">
-                  {featuredActivity.subtitle && (
-                    <div className="flex items-center gap-2 text-green-400 text-sm mb-3">
-                      <FaMapMarkerAlt className="w-3 h-3" />
-                      <span className="capitalize">{featuredActivity.subtitle}</span>
-                    </div>
-                  )}
-                  <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 capitalize">
-                    {featuredActivity.title}
-                  </h3>
-                  <p className="text-white/80 text-sm md:text-base line-clamp-2 mb-6">
-                    {featuredActivity.body}
-                  </p>
-                  
-                  {isAdminMode && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setEditingActivity(featuredActivity)}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
-                      >
-                        <FaEdit className="w-3 h-3" /> Edit
-                      </button>
-                      <button
-                        onClick={() => deleteActivity(featuredActivity.id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors"
-                      >
-                        <FaTrash className="w-3 h-3" /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {activities.length > 1 && (
-                <div className="absolute bottom-8 right-8 flex items-center gap-4">
-                  <button
-                    onClick={() => setIsPaused(!isPaused)}
-                    className="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
-                  >
-                    {isPaused ? <FaPlay className="w-3 h-3" /> : <FaPause className="w-3 h-3" />}
-                  </button>
-                  
-                  <div className="flex gap-2">
-                    {activities.slice(0, 5).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentFeatured(i)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          i === currentFeatured 
-                            ? "w-8 bg-white" 
-                            : "w-2 bg-white/50 hover:bg-white/70"
-                        }`}
-                      />
-                    ))}
-                    {activities.length > 5 && (
-                      <span className="text-white/50 text-xs ml-1">+{activities.length - 5}</span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <FeaturedActivityCard 
+            activity={featuredActivity}
+            isAdminMode={isAdminMode}
+            onEdit={() => setEditingActivity(featuredActivity)}
+            onDelete={() => deleteActivity(featuredActivity.id)}
+            isPaused={isPaused}
+            setIsPaused={setIsPaused}
+            currentFeatured={currentFeatured}
+            setCurrentFeatured={setCurrentFeatured}
+            totalActivities={activities.length}
+          />
         )}
 
         {/* Activity Grid */}
@@ -261,28 +195,192 @@ export default function ActivitiesSection() {
   );
 }
 
+// Featured Activity with image slideshow
+function FeaturedActivityCard({ 
+  activity, 
+  isAdminMode, 
+  onEdit, 
+  onDelete, 
+  isPaused, 
+  setIsPaused, 
+  currentFeatured, 
+  setCurrentFeatured, 
+  totalActivities 
+}) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const documents = activity.documents || [];
+  const slideshowMode = activity.slideshowMode || 'SEQUENTIAL';
+  
+  // Image slideshow within activity
+  useEffect(() => {
+    if (documents.length <= 1 || isPaused) return;
+    
+    const interval = setInterval(() => {
+      if (slideshowMode === 'RANDOM') {
+        // Random: pick a different random image
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * documents.length);
+        } while (nextIndex === currentImageIndex && documents.length > 1);
+        setCurrentImageIndex(nextIndex);
+      } else {
+        // Sequential: go to next image
+        setCurrentImageIndex(prev => (prev + 1) % documents.length);
+      }
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [documents.length, isPaused, slideshowMode, currentImageIndex]);
+  
+  // Reset image index when activity changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [activity.id]);
+
+  const currentDoc = documents[currentImageIndex];
+
+  return (
+    <div className="relative mb-16 rounded-3xl overflow-hidden shadow-2xl group">
+      <div className="relative h-[400px] md:h-[500px]">
+        {currentDoc?.documentId ? (
+          <DocumentImage
+            documentId={currentDoc.documentId}
+            alt={activity.title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+            <FaImages className="w-20 h-20 text-white/30" />
+          </div>
+        )}
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        
+        {/* Image indicators for multiple images */}
+        {documents.length > 1 && (
+          <div className="absolute top-4 left-4 flex gap-1.5">
+            {documents.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentImageIndex(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  i === currentImageIndex 
+                    ? "w-6 bg-white" 
+                    : "w-1.5 bg-white/50 hover:bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+        
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+          <div className="max-w-2xl">
+            {activity.subtitle && (
+              <div className="flex items-center gap-2 text-green-400 text-sm mb-3">
+                <FaMapMarkerAlt className="w-3 h-3" />
+                <span className="capitalize">{activity.subtitle}</span>
+              </div>
+            )}
+            <h3 className="text-2xl md:text-4xl font-bold text-white mb-4 capitalize">
+              {activity.title}
+            </h3>
+            <p className="text-white/80 text-sm md:text-base line-clamp-2 mb-6">
+              {activity.body}
+            </p>
+            
+            {isAdminMode && (
+              <div className="flex gap-2">
+                <button
+                  onClick={onEdit}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+                >
+                  <FaEdit className="w-3 h-3" /> Edit
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors"
+                >
+                  <FaTrash className="w-3 h-3" /> Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {totalActivities > 1 && (
+          <div className="absolute bottom-8 right-8 flex items-center gap-4">
+            <button
+              onClick={() => setIsPaused(!isPaused)}
+              className="w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-colors"
+            >
+              {isPaused ? <FaPlay className="w-3 h-3" /> : <FaPause className="w-3 h-3" />}
+            </button>
+            
+            <div className="flex gap-2">
+              {Array.from({ length: Math.min(totalActivities, 5) }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentFeatured(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === currentFeatured 
+                      ? "w-8 bg-white" 
+                      : "w-2 bg-white/50 hover:bg-white/70"
+                  }`}
+                />
+              ))}
+              {totalActivities > 5 && (
+                <span className="text-white/50 text-xs ml-1">+{totalActivities - 5}</span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Activity Card with slideshow for multiple images
 function ActivityCard({ activity, isAdminMode, onEdit, onDelete, index }) {
   const [isHovered, setIsHovered] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   
-  // For now, activities have one main image from backend
-  // In future, this could be expanded to support multiple images
-  const hasImage = activity.document?.documentId;
+  const documents = activity.documents || [];
+  const slideshowMode = activity.slideshowMode || 'SEQUENTIAL';
+  const hasImages = documents.length > 0;
+  
+  // Auto slideshow when hovered
+  useEffect(() => {
+    if (!isHovered || documents.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      if (slideshowMode === 'RANDOM') {
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * documents.length);
+        } while (nextIndex === currentSlide && documents.length > 1);
+        setCurrentSlide(nextIndex);
+      } else {
+        setCurrentSlide(prev => (prev + 1) % documents.length);
+      }
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [isHovered, documents.length, slideshowMode, currentSlide]);
   
   const heights = ['h-64', 'h-72', 'h-80'];
   const cardHeight = heights[index % heights.length];
+  const currentDoc = documents[currentSlide];
 
   return (
     <article
       className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ${cardHeight}`}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => { setIsHovered(false); setCurrentSlide(0); }}
     >
       <div className="absolute inset-0">
-        {hasImage ? (
+        {hasImages && currentDoc?.documentId ? (
           <DocumentImage
-            documentId={activity.document.documentId}
+            documentId={currentDoc.documentId}
             alt={activity.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
@@ -294,6 +392,14 @@ function ActivityCard({ activity, isAdminMode, onEdit, onDelete, index }) {
         
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-70'}`} />
       </div>
+
+      {/* Image count badge */}
+      {documents.length > 1 && (
+        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+          <FaImages className="w-3 h-3" />
+          <span>{documents.length}</span>
+        </div>
+      )}
 
       {isAdminMode && (
         <div className={`absolute top-3 right-3 flex gap-2 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
@@ -309,6 +415,23 @@ function ActivityCard({ activity, isAdminMode, onEdit, onDelete, index }) {
           >
             <FaTrash className="w-3 h-3" />
           </button>
+        </div>
+      )}
+
+      {/* Image slideshow dots */}
+      {documents.length > 1 && isHovered && (
+        <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-1.5">
+          {documents.map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); setCurrentSlide(i); }}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === currentSlide 
+                  ? "w-4 bg-white" 
+                  : "w-1.5 bg-white/50 hover:bg-white/70"
+              }`}
+            />
+          ))}
         </div>
       )}
 
@@ -337,26 +460,52 @@ function ActivityCard({ activity, isAdminMode, onEdit, onDelete, index }) {
   );
 }
 
+// Constants for file upload limits
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_TOTAL_SIZE_MB = 10;
+const MAX_TOTAL_SIZE_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024;
+
+// Format file size for display
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
 // Add/Edit Activity Modal with MULTIPLE IMAGES support
 function ActivityModal({ activity, onClose, onSave }) {
   const [formData, setFormData] = useState({
     title: activity?.title || "",
     subtitle: activity?.subtitle || "",
     body: activity?.body || "",
+    slideshowMode: activity?.slideshowMode || "SEQUENTIAL",
   });
   const [images, setImages] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Initialize with existing image if editing
+  // Calculate total size of new files
+  const totalNewFilesSize = images
+    .filter(img => !img.isExisting && img.file)
+    .reduce((sum, img) => sum + (img.file?.size || 0), 0);
+
+  // Initialize with existing images if editing
   useEffect(() => {
-    if (activity?.document?.documentId) {
-      setImages([{
-        id: 'existing-' + activity.document.documentId,
-        documentId: activity.document.documentId,
+    if (activity?.documents && activity.documents.length > 0) {
+      const existingImages = activity.documents.map((doc, idx) => ({
+        id: 'existing-' + doc.documentId,
+        documentId: doc.documentId,
         isExisting: true,
-        preview: null
-      }]);
+        preview: null,
+        displayOrder: doc.displayOrder ?? idx
+      }));
+      // Sort by displayOrder
+      existingImages.sort((a, b) => a.displayOrder - b.displayOrder);
+      setImages(existingImages);
     }
   }, [activity]);
 
@@ -364,16 +513,55 @@ function ActivityModal({ activity, onClose, onSave }) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    const newImages = files.map((file, idx) => ({
-      id: `new-${Date.now()}-${idx}`,
-      file: file,
-      preview: URL.createObjectURL(file),
-      isExisting: false
-    }));
+    setError(null);
+    const validFiles = [];
+    const errors = [];
 
-    setImages(prev => [...prev, ...newImages]);
+    for (const file of files) {
+      // Check individual file size
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        errors.push(`"${file.name}" (${formatFileSize(file.size)}) exceeds ${MAX_FILE_SIZE_MB}MB limit`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    // Check total size including existing new files
+    const currentNewFilesSize = images
+      .filter(img => !img.isExisting && img.file)
+      .reduce((sum, img) => sum + (img.file?.size || 0), 0);
+    const newFilesTotalSize = validFiles.reduce((sum, f) => sum + f.size, 0);
     
-    // Reset file input so same file can be selected again
+    if (currentNewFilesSize + newFilesTotalSize > MAX_TOTAL_SIZE_BYTES) {
+      errors.push(`Total upload size would exceed ${MAX_TOTAL_SIZE_MB}MB. Current: ${formatFileSize(currentNewFilesSize)}, Adding: ${formatFileSize(newFilesTotalSize)}`);
+      // Still add files that fit
+      let remainingSize = MAX_TOTAL_SIZE_BYTES - currentNewFilesSize;
+      const fittingFiles = [];
+      for (const file of validFiles) {
+        if (file.size <= remainingSize) {
+          fittingFiles.push(file);
+          remainingSize -= file.size;
+        }
+      }
+      validFiles.length = 0;
+      validFiles.push(...fittingFiles);
+    }
+
+    if (errors.length > 0) {
+      setError(errors.join('. '));
+    }
+
+    if (validFiles.length > 0) {
+      const newImages = validFiles.map((file, idx) => ({
+        id: `new-${Date.now()}-${idx}`,
+        file: file,
+        preview: URL.createObjectURL(file),
+        isExisting: false,
+        fileSize: file.size
+      }));
+      setImages(prev => [...prev, ...newImages]);
+    }
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -395,22 +583,35 @@ function ActivityModal({ activity, onClose, onSave }) {
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      alert("Title is required");
+      setError("Title is required");
       return;
     }
 
     if (images.length === 0) {
-      alert("Please add at least one photo");
+      setError("Please add at least one photo");
       return;
     }
 
+    // Validate total file size before upload
+    const newFilesSize = images
+      .filter(img => !img.isExisting && img.file)
+      .reduce((sum, img) => sum + (img.file?.size || 0), 0);
+    
+    if (newFilesSize > MAX_TOTAL_SIZE_BYTES) {
+      setError(`Total file size (${formatFileSize(newFilesSize)}) exceeds the ${MAX_TOTAL_SIZE_MB}MB limit. Please remove some images or use smaller files.`);
+      return;
+    }
+
+    setError(null);
     setSaving(true);
+    
     try {
       const activityData = {
         title: formData.title,
         subtitle: formData.subtitle,
         body: formData.body,
         groupName: "ACTIVITIES",
+        slideshowMode: formData.slideshowMode,
       };
 
       if (activity?.id) {
@@ -420,27 +621,71 @@ function ActivityModal({ activity, onClose, onSave }) {
       const formDataPayload = new FormData();
       formDataPayload.append("activitiesRequestDTO", JSON.stringify(activityData));
       
-      // Use first image (main image)
-      const mainImage = images[0];
-      if (mainImage.file) {
-        formDataPayload.append("document", mainImage.file);
-      } else if (mainImage.isExisting && mainImage.documentId) {
-        // Fetch existing image blob
-        const imgRes = await api.get(`/documents/view-image?documentId=${mainImage.documentId}`, {
-          responseType: 'blob'
-        });
-        const file = new File([imgRes.data], 'existing.jpg', { type: imgRes.data.type || 'image/jpeg' });
-        formDataPayload.append("document", file);
+      // Separate existing and new images
+      const existingDocIds = [];
+      const newFiles = [];
+      
+      for (const img of images) {
+        if (img.isExisting && img.documentId) {
+          existingDocIds.push(img.documentId);
+        } else if (img.file) {
+          newFiles.push(img.file);
+        }
+      }
+      
+      // Add existing document IDs
+      existingDocIds.forEach(docId => {
+        formDataPayload.append("existingDocumentIds", docId);
+      });
+      
+      // Add new files
+      newFiles.forEach(file => {
+        formDataPayload.append("documents", file);
+      });
+      
+      // If no new files but we have existing, add empty to satisfy backend
+      if (newFiles.length === 0) {
+        // Create an empty blob as placeholder
+        formDataPayload.append("documents", new Blob(), "");
       }
 
-      await api.post("/activities/create-activities", formDataPayload, {
+      const endpoint = activity?.id 
+        ? "/activities/update-activities"
+        : "/activities/create-activities";
+      
+      const method = activity?.id ? 'put' : 'post';
+      
+      await api[method](endpoint, formDataPayload, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
       onSave();
     } catch (err) {
       console.error("Failed to save activity", err);
-      alert("Failed to save activity. Please try again.");
+      
+      // Parse error response
+      let errorMessage = "Failed to save activity. Please try again.";
+      
+      if (err.response) {
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 413 || (data?.message && data.message.toLowerCase().includes('size'))) {
+          // File too large error
+          const maxSize = data?.result?.maxFileSize || '10MB';
+          errorMessage = `Upload failed: File size exceeds the maximum allowed limit of ${maxSize}. Please compress your images or upload smaller files.`;
+        } else if (data?.message) {
+          errorMessage = data.message;
+        }
+      } else if (err.message) {
+        if (err.message.includes('Network Error')) {
+          errorMessage = "Network error. The files may be too large or the server is unavailable.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -476,7 +721,6 @@ function ActivityModal({ activity, onClose, onSave }) {
                   key={img.id} 
                   className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group border-2 border-gray-200 hover:border-green-500 transition-colors"
                 >
-                  {/* Image Display */}
                   {img.isExisting && img.documentId ? (
                     <DocumentImage
                       documentId={img.documentId}
@@ -495,16 +739,22 @@ function ActivityModal({ activity, onClose, onSave }) {
                     </div>
                   )}
                   
-                  {/* Main badge */}
                   {index === 0 && (
                     <span className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded font-medium z-10">
                       Main
                     </span>
                   )}
                   
-                  {/* Controls overlay */}
+                  {/* File size badge for new uploads */}
+                  {!img.isExisting && img.file && (
+                    <span className={`absolute bottom-2 left-2 text-white text-xs px-2 py-0.5 rounded font-medium z-10 ${
+                      img.file.size > MAX_FILE_SIZE_BYTES * 0.8 ? 'bg-orange-500' : 'bg-black/50'
+                    }`}>
+                      {formatFileSize(img.file.size)}
+                    </span>
+                  )}
+                  
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    {/* Move left */}
                     {index > 0 && (
                       <button
                         type="button"
@@ -516,7 +766,6 @@ function ActivityModal({ activity, onClose, onSave }) {
                       </button>
                     )}
                     
-                    {/* Remove */}
                     <button
                       type="button"
                       onClick={() => removeImage(img.id)}
@@ -526,7 +775,6 @@ function ActivityModal({ activity, onClose, onSave }) {
                       <FaTimes className="w-3 h-3" />
                     </button>
                     
-                    {/* Move right */}
                     {index < images.length - 1 && (
                       <button
                         type="button"
@@ -541,7 +789,6 @@ function ActivityModal({ activity, onClose, onSave }) {
                 </div>
               ))}
               
-              {/* Add more button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -560,8 +807,76 @@ function ActivityModal({ activity, onClose, onSave }) {
               onChange={handleImageUpload}
               className="hidden"
             />
-            <p className="text-xs text-gray-500">
-              Upload multiple photos. Drag to reorder. First photo will be the main display image.
+            
+            {/* File size info */}
+            <div className="flex items-center justify-between text-xs text-gray-500">
+              <p>
+                Upload multiple photos. Use arrows to reorder. First photo will be the main display image.
+              </p>
+              {totalNewFilesSize > 0 && (
+                <span className={`font-medium ${totalNewFilesSize > MAX_TOTAL_SIZE_BYTES * 0.8 ? 'text-orange-500' : 'text-gray-500'}`}>
+                  {formatFileSize(totalNewFilesSize)} / {MAX_TOTAL_SIZE_MB}MB
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              Max {MAX_FILE_SIZE_MB}MB per image, {MAX_TOTAL_SIZE_MB}MB total
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+              <div className="flex-shrink-0 w-5 h-5 text-red-500 mt-0.5">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              <button 
+                onClick={() => setError(null)}
+                className="flex-shrink-0 text-red-400 hover:text-red-600"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Slideshow Mode */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Slideshow Mode
+            </label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, slideshowMode: "SEQUENTIAL" })}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  formData.slideshowMode === "SEQUENTIAL"
+                    ? "border-green-500 bg-green-50 text-green-700"
+                    : "border-gray-200 hover:border-gray-300 text-gray-600"
+                }`}
+              >
+                <FaSortNumericDown className="w-4 h-4" />
+                <span className="font-medium">Sequential</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, slideshowMode: "RANDOM" })}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                  formData.slideshowMode === "RANDOM"
+                    ? "border-green-500 bg-green-50 text-green-700"
+                    : "border-gray-200 hover:border-gray-300 text-gray-600"
+                }`}
+              >
+                <FaRandom className="w-4 h-4" />
+                <span className="font-medium">Random</span>
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Choose how images rotate: in order or randomly
             </p>
           </div>
 
