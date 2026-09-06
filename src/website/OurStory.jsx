@@ -4,6 +4,7 @@ import { API } from "../api/endpoints";
 import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 import { FaHeart, FaUsers, FaCalendarAlt, FaHandshake } from "react-icons/fa";
 import { useAdmin } from "../context/AdminContext";
+import { useStats } from "../context/StatsContext";
 import EditTag from "../admin/components/EditTag";
 import InlineEditModal from "../admin/components/InlineEditModal";
 
@@ -37,6 +38,7 @@ const storyStatsEditFields = [
 
 export default function OurStory() {
   const { isAdminMode } = useAdmin();
+  const { stats, storyStats, yearsOfImpact, saveStats } = useStats();
   const [ourStory, setOurStory] = useState({
     id: null,
     ourStoryTitle: "Our Story",
@@ -50,16 +52,6 @@ export default function OurStory() {
     ceoQuote: "Every child deserves a chance to thrive. Together, we can make that possible.",
     ceoName: "N.P Lunani",
     ceoTitle: "Founder & CEO",
-  });
-
-  const [storyStats, setStoryStats] = useState({
-    id: null,
-    statChildrenHelped: "150+",
-    statChildrenHelpedLabel: "Children Helped",
-    statActiveMembers: "50+",
-    statActiveMembersLabel: "Active Members",
-    statPrograms: "10+",
-    statProgramsLabel: "Programs",
   });
 
   useEffect(() => {
@@ -90,21 +82,7 @@ export default function OurStory() {
             ceoTitle: ceoItem.ceoTitle || ceoData.ceoTitle,
           });
         }
-
-        // Fetch Stats (reuse from STATS but use the story-specific ones)
-        const statsRes = await fetchPageSection("STATS");
-        const statsItem = statsRes?.result?.[0];
-        if (statsItem) {
-          setStoryStats({
-            id: statsItem.id,
-            statChildrenHelped: statsItem.statChildrenHelped || storyStats.statChildrenHelped,
-            statChildrenHelpedLabel: statsItem.statChildrenHelpedLabel || storyStats.statChildrenHelpedLabel,
-            statActiveMembers: statsItem.statActiveMembers || storyStats.statActiveMembers,
-            statActiveMembersLabel: statsItem.statActiveMembersLabel || storyStats.statActiveMembersLabel,
-            statPrograms: statsItem.statPrograms || storyStats.statPrograms,
-            statProgramsLabel: statsItem.statProgramsLabel || storyStats.statProgramsLabel,
-          });
-        }
+        // Stats are now loaded from StatsContext
       } catch {
         console.warn("Our Story backend not available, using fallback content");
       }
@@ -130,14 +108,9 @@ export default function OurStory() {
     setCeoData({ ...ceoData, ...data });
   };
 
+  // Save story stats via shared context
   const handleSaveStoryStats = async (data) => {
-    // Story stats are part of the main STATS entity
-    if (storyStats.id) {
-      await updatePageSection("STATS", { id: storyStats.id, ...data });
-    } else {
-      await createPageSection("STATS", data);
-    }
-    setStoryStats({ ...storyStats, ...data });
+    await saveStats(data);
   };
 
   return (
@@ -184,10 +157,10 @@ export default function OurStory() {
                 ))}
               </div>
               
-              {/* Decorative Element */}
+              {/* Years of Impact - Auto-calculated */}
               <div className="mt-8 pt-6 border-t border-white/20">
-                <div className="text-4xl font-bold">4+</div>
-                <div className="text-green-200 text-sm">Years of Impact</div>
+                <div className="text-4xl font-bold">{yearsOfImpact.value}</div>
+                <div className="text-green-200 text-sm">{yearsOfImpact.label}</div>
               </div>
             </div>
           </div>
@@ -222,7 +195,7 @@ export default function OurStory() {
               </div>
             </div>
 
-            {/* Stats Row */}
+            {/* Stats Row - from shared context */}
             <div className="relative grid grid-cols-3 gap-6 mt-10">
               {/* Story Stats Edit Tag */}
               {isAdminMode && (
@@ -230,18 +203,12 @@ export default function OurStory() {
                   <EditTag sectionId="storyStats" label="Stats" />
                 </div>
               )}
-              <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                <div className="text-2xl md:text-3xl font-bold text-green-600">{storyStats.statChildrenHelped}</div>
-                <div className="text-sm text-gray-500">{storyStats.statChildrenHelpedLabel}</div>
-              </div>
-              <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                <div className="text-2xl md:text-3xl font-bold text-green-600">{storyStats.statActiveMembers}</div>
-                <div className="text-sm text-gray-500">{storyStats.statActiveMembersLabel}</div>
-              </div>
-              <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                <div className="text-2xl md:text-3xl font-bold text-green-600">{storyStats.statPrograms}</div>
-                <div className="text-sm text-gray-500">{storyStats.statProgramsLabel}</div>
-              </div>
+              {storyStats.map((stat, index) => (
+                <div key={stat.key || index} className="text-center p-4 bg-white rounded-xl border border-gray-100">
+                  <div className="text-2xl md:text-3xl font-bold text-green-600">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -270,7 +237,7 @@ export default function OurStory() {
         sectionId="storyStats"
         title="Story Statistics"
         fields={storyStatsEditFields}
-        initialData={storyStats}
+        initialData={stats}
         onSave={handleSaveStoryStats}
       />
     </section>

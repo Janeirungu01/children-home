@@ -1,6 +1,7 @@
 import { useState } from "react";
 import EditableSection from "../components/EditableSection";
 import { FaGraduationCap, FaMedkit, FaHome, FaHandsHelping, FaArrowRight, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { useStats } from "../../context/StatsContext";
 
 const defaultGoals = [
   {
@@ -49,6 +50,7 @@ const iconMap = {
 };
 
 export default function AdminGoals({ isEditing, onEdit, onClose }) {
+  const { heroStats } = useStats();
   const [goals, setGoals] = useState(defaultGoals);
   const [editingGoal, setEditingGoal] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -205,24 +207,14 @@ export default function AdminGoals({ isEditing, onEdit, onClose }) {
             )}
           </div>
 
-          {/* Bottom Stats */}
+          {/* Bottom Stats - from shared context */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-gray-100">
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-1">150+</div>
-              <div className="text-gray-500 text-sm">Children Supported</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-1">95%</div>
-              <div className="text-gray-500 text-sm">School Enrollment</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-1">500+</div>
-              <div className="text-gray-500 text-sm">Global Donors</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-1">4+</div>
-              <div className="text-gray-500 text-sm">Years of Impact</div>
-            </div>
+            {heroStats.map((stat) => (
+              <div key={stat.key} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-green-600 mb-1">{stat.value}</div>
+                <div className="text-gray-500 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

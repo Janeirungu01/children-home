@@ -2,20 +2,15 @@ import { useEffect, useState, useRef } from "react";
 import { fetchPageSection, updatePageSection } from "../../api/pageApi";
 import EditableSection from "../components/EditableSection";
 import { FaHeart, FaHandHoldingHeart, FaUsers, FaGraduationCap, FaPlay, FaEdit } from "react-icons/fa";
+import { useStats } from "../../context/StatsContext";
 import backgroundImage from "../../assets/children15.jpeg";
 import img2 from "../../assets/children14.jpeg";
 import img3 from "../../assets/children12.jpg";
 
-const impactStats = [
-  { icon: <FaUsers className="w-5 h-5" />, value: "150+", label: "Children Supported" },
-  { icon: <FaGraduationCap className="w-5 h-5" />, value: "95%", label: "School Enrollment" },
-  { icon: <FaHandHoldingHeart className="w-5 h-5" />, value: "500+", label: "Donors Worldwide" },
-  { icon: <FaHeart className="w-5 h-5" />, value: "4+", label: "Years of Impact" },
-];
-
 const heroImages = [backgroundImage, img2, img3];
 
 export default function AdminHero({ isEditing, onEdit, onClose }) {
+  const { heroStats } = useStats();
   const [heroData, setHeroData] = useState({
     id: null,
     headerTitle: "Brighter Together Foundation",
@@ -214,20 +209,23 @@ export default function AdminHero({ isEditing, onEdit, onClose }) {
             ))}
           </div>
 
-          {/* Impact Statistics */}
+          {/* Impact Statistics - from shared context */}
           <div className="absolute bottom-0 left-0 right-0 z-20 pb-8">
             <div className="max-w-5xl mx-auto px-6">
               <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2">
                 <div className="grid grid-cols-2 md:grid-cols-4">
-                  {impactStats.map((stat, index) => (
+                  {heroStats.map((stat, index) => (
                     <div
-                      key={stat.label}
+                      key={stat.key}
                       className={`flex items-center justify-center gap-3 py-4 px-4 ${
-                        index !== impactStats.length - 1 ? "md:border-r md:border-white/10" : ""
+                        index !== heroStats.length - 1 ? "md:border-r md:border-white/10" : ""
                       }`}
                     >
                       <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-green-400">
-                        {stat.icon}
+                        {index === 0 && <FaUsers className="w-5 h-5" />}
+                        {index === 1 && <FaGraduationCap className="w-5 h-5" />}
+                        {index === 2 && <FaHandHoldingHeart className="w-5 h-5" />}
+                        {index === 3 && <FaHeart className="w-5 h-5" />}
                       </div>
                       <div className="text-left">
                         <div className="text-xl md:text-2xl font-bold text-white">{stat.value}</div>

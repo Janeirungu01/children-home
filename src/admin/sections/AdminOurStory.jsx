@@ -4,6 +4,7 @@ import api from "../../api/axios";
 import { API } from "../../api/endpoints";
 import EditableSection from "../components/EditableSection";
 import { FaHeart, FaUsers, FaCalendarAlt, FaHandshake } from "react-icons/fa";
+import { useStats } from "../../context/StatsContext";
 
 const milestones = [
   { year: "2022", event: "Foundation Conceived", icon: <FaHeart /> },
@@ -13,6 +14,7 @@ const milestones = [
 ];
 
 export default function AdminOurStory({ isEditing, onEdit, onClose }) {
+  const { storyStats, yearsOfImpact } = useStats();
   const [ourStory, setOurStory] = useState({
     id: null,
     ourStoryTitle: "Our Story",
@@ -136,9 +138,10 @@ export default function AdminOurStory({ isEditing, onEdit, onClose }) {
                   ))}
                 </div>
                 
+                {/* Years of Impact - Auto-calculated */}
                 <div className="mt-8 pt-6 border-t border-white/20">
-                  <div className="text-4xl font-bold">4+</div>
-                  <div className="text-green-200 text-sm">Years of Impact</div>
+                  <div className="text-4xl font-bold">{yearsOfImpact.value}</div>
+                  <div className="text-green-200 text-sm">{yearsOfImpact.label}</div>
                 </div>
               </div>
             </div>
@@ -176,20 +179,14 @@ export default function AdminOurStory({ isEditing, onEdit, onClose }) {
                 </div>
               </div>
 
-              {/* Stats Row */}
+              {/* Stats Row - from shared context */}
               <div className="grid grid-cols-3 gap-6 mt-10">
-                <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                  <div className="text-2xl md:text-3xl font-bold text-green-600">150+</div>
-                  <div className="text-sm text-gray-500">Children Helped</div>
-                </div>
-                <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                  <div className="text-2xl md:text-3xl font-bold text-green-600">50+</div>
-                  <div className="text-sm text-gray-500">Active Members</div>
-                </div>
-                <div className="text-center p-4 bg-white rounded-xl border border-gray-100">
-                  <div className="text-2xl md:text-3xl font-bold text-green-600">10+</div>
-                  <div className="text-sm text-gray-500">Programs</div>
-                </div>
+                {storyStats.map((stat) => (
+                  <div key={stat.key} className="text-center p-4 bg-white rounded-xl border border-gray-100">
+                    <div className="text-2xl md:text-3xl font-bold text-green-600">{stat.value}</div>
+                    <div className="text-sm text-gray-500">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

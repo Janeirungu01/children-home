@@ -14,6 +14,7 @@ import Dashboard from "./admin/Dashboard";
 
 import { AppProvider } from "./context/AppContext";
 import { AdminProvider } from "./context/AdminContext";
+import { StatsProvider } from "./context/StatsContext";
 import Notifications from "./components/Notifications";
 import DonationTracker from "./components/DonationTracker";
 import { DonationPersistence } from "./hooks/usePersistDonations";
@@ -26,28 +27,30 @@ function App() {
       <DonationPersistence />
       <BrowserRouter>
         <AdminProvider>
-          <Routes>
-            {/* Public Website - with admin editing capabilities when logged in */}
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/activities" element={<ActivitiesSection />} />
-            <Route path="/goals" element={<GoalSection />} />
-            <Route path="/story" element={<OurStory />} />
-            <Route path="/contact" element={<Footer />} />
+          <StatsProvider>
+            <Routes>
+              {/* Public Website - with admin editing capabilities when logged in */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/activities" element={<ActivitiesSection />} />
+              <Route path="/goals" element={<GoalSection />} />
+              <Route path="/story" element={<OurStory />} />
+              <Route path="/contact" element={<Footer />} />
 
-            {/* Admin Login (public) */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+              {/* Admin Login (public) */}
+              <Route path="/admin/login" element={<AdminLogin />} />
 
-            {/* Protected Admin Routes - Dashboard */}
-            <Route path="/admin" element={
-              <AdminAuthGuard>
-                <AdminLayout />
-              </AdminAuthGuard>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="create-user" element={<CreateUser />} />
-            </Route>
-          </Routes>
+              {/* Protected Admin Routes - Dashboard */}
+              <Route path="/admin" element={
+                <AdminAuthGuard>
+                  <AdminLayout />
+                </AdminAuthGuard>
+              }>
+                <Route index element={<Dashboard />} />
+                <Route path="create-user" element={<CreateUser />} />
+              </Route>
+            </Routes>
+          </StatsProvider>
         </AdminProvider>
       </BrowserRouter>
     </AppProvider>
