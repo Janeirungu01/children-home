@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection } from "../api/pageApi";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 import { useDonation } from "../hooks/useDonation";
+import { useAdmin } from "../context/AdminContext";
+import EditTag from "../admin/components/EditTag";
+import InlineEditModal from "../admin/components/InlineEditModal";
 import DonationModal from "../components/DonationModal";
 import { FaHeart, FaMobileAlt, FaCreditCard, FaShieldAlt, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import donateImage from "../assets/children14.jpeg";
 
-const impactItems = [
+const defaultImpactItems = [
   { amount: "KES 500", impact: "Provides meals for a child for a week" },
   { amount: "KES 2,000", impact: "Covers school supplies for a term" },
   { amount: "KES 5,000", impact: "Funds healthcare checkup and medicine" },
@@ -18,29 +21,88 @@ const paymentOptions = [
   { icon: <FaMobileAlt className="w-4 h-4" />, name: "Airtel Money" },
 ];
 
+const donationImpactEditFields = [
+  { name: "donationTier1Amount", label: "Tier 1 Amount", type: "text", placeholder: "KES 500" },
+  { name: "donationTier1Description", label: "Tier 1 Description", type: "text", placeholder: "Provides meals for a child for a week" },
+  { name: "donationTier2Amount", label: "Tier 2 Amount", type: "text", placeholder: "KES 2,000" },
+  { name: "donationTier2Description", label: "Tier 2 Description", type: "text", placeholder: "Covers school supplies for a term" },
+  { name: "donationTier3Amount", label: "Tier 3 Amount", type: "text", placeholder: "KES 5,000" },
+  { name: "donationTier3Description", label: "Tier 3 Description", type: "text", placeholder: "Funds healthcare checkup and medicine" },
+  { name: "donationTier4Amount", label: "Tier 4 Amount", type: "text", placeholder: "KES 10,000" },
+  { name: "donationTier4Description", label: "Tier 4 Description", type: "text", placeholder: "Supports a child's education for a month" },
+];
+
 export default function Donations() {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const { openDonationModal } = useDonation();
+  const { isAdminMode } = useAdmin();
+
+  const [donationImpact, setDonationImpact] = useState({
+    id: null,
+    donationTier1Amount: "KES 500",
+    donationTier1Description: "Provides meals for a child for a week",
+    donationTier2Amount: "KES 2,000",
+    donationTier2Description: "Covers school supplies for a term",
+    donationTier3Amount: "KES 5,000",
+    donationTier3Description: "Funds healthcare checkup and medicine",
+    donationTier4Amount: "KES 10,000",
+    donationTier4Description: "Supports a child's education for a month",
+  });
+
+  // Build impact items from data
+  const impactItems = [
+    { amount: donationImpact.donationTier1Amount, impact: donationImpact.donationTier1Description },
+    { amount: donationImpact.donationTier2Amount, impact: donationImpact.donationTier2Description },
+    { amount: donationImpact.donationTier3Amount, impact: donationImpact.donationTier3Description },
+    { amount: donationImpact.donationTier4Amount, impact: donationImpact.donationTier4Description },
+  ];
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadPayment() {
+    async function loadData() {
       try {
-        const res = await fetchPageSection("PAYMENT");
-        const item = res?.result?.[0] || null;
-        if (!cancelled) setPayment(item);
+        // Load payment info
+        const paymentRes = await fetchPageSection("PAYMENT");
+        const paymentItem = paymentRes?.result?.[0] || null;
+        if (!cancelled) setPayment(paymentItem);
+
+        // Load donation impact tiers
+        const impactRes = await fetchPageSection("DONATION_IMPACT");
+        const impactItem = impactRes?.result?.[0];
+        if (!cancelled && impactItem) {
+          setDonationImpact({
+            id: impactItem.id,
+            donationTier1Amount: impactItem.donationTier1Amount || donationImpact.donationTier1Amount,
+            donationTier1Description: impactItem.donationTier1Description || donationImpact.donationTier1Description,
+            donationTier2Amount: impactItem.donationTier2Amount || donationImpact.donationTier2Amount,
+            donationTier2Description: impactItem.donationTier2Description || donationImpact.donationTier2Description,
+            donationTier3Amount: impactItem.donationTier3Amount || donationImpact.donationTier3Amount,
+            donationTier3Description: impactItem.donationTier3Description || donationImpact.donationTier3Description,
+            donationTier4Amount: impactItem.donationTier4Amount || donationImpact.donationTier4Amount,
+            donationTier4Description: impactItem.donationTier4Description || donationImpact.donationTier4Description,
+          });
+        }
       } catch (err) {
-        if (!cancelled) console.error("Failed to load payment info", err);
+        if (!cancelled) console.error("Failed to load data", err);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
-    loadPayment();
+    loadData();
     return () => { cancelled = true; };
   }, []);
+
+  const handleSaveDonationImpact = async (data) => {
+    if (donationImpact.id) {
+      await updatePageSection("DONATION_IMPACT", { id: donationImpact.id, ...data });
+    } else {
+      await createPageSection("DONATION_IMPACT", data);
+    }
+    setDonationImpact({ ...donationImpact, ...data });
+  };
 
   return (
     <section id="donate" className="py-20 bg-gradient-to-b from-white to-gray-50">
@@ -83,7 +145,13 @@ export default function Donations() {
             </div>
 
             {/* Impact Cards */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              {/* Donation Impact Edit Tag */}
+              {isAdminMode && (
+                <div className="absolute -top-2 -right-2 z-10">
+                  <EditTag sectionId="donationImpact" label="Impact" />
+                </div>
+              )}
               <h3 className="font-bold text-gray-900 mb-4">Your Impact</h3>
               <div className="space-y-3">
                 {impactItems.map((item, index) => (
@@ -171,6 +239,15 @@ export default function Donations() {
 
       {/* Donation Modal */}
       <DonationModal />
+
+      {/* Inline Edit Modal for Donation Impact */}
+      <InlineEditModal
+        sectionId="donationImpact"
+        title="Donation Impact Tiers"
+        fields={donationImpactEditFields}
+        initialData={donationImpact}
+        onSave={handleSaveDonationImpact}
+      />
     </section>
   );
 }

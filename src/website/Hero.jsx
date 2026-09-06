@@ -9,7 +9,7 @@ import backgroundImage from "../assets/children15.jpeg";
 import img2 from "../assets/children14.jpeg";
 import img3 from "../assets/children12.jpg";
 
-const impactStats = [
+const defaultStats = [
   { icon: <FaUsers className="w-5 h-5" />, value: "150+", label: "Children Supported" },
   { icon: <FaGraduationCap className="w-5 h-5" />, value: "95%", label: "School Enrollment" },
   { icon: <FaHandHoldingHeart className="w-5 h-5" />, value: "500+", label: "Donors Worldwide" },
@@ -25,6 +25,18 @@ const heroEditFields = [
   { name: "mission", label: "Mission Statement", type: "textarea", rows: 3, placeholder: "Mission description" },
 ];
 
+// Stats edit fields
+const statsEditFields = [
+  { name: "statChildrenSupported", label: "Stat 1 Value", type: "text", placeholder: "150+" },
+  { name: "statChildrenLabel", label: "Stat 1 Label", type: "text", placeholder: "Children Supported" },
+  { name: "statSchoolEnrollment", label: "Stat 2 Value", type: "text", placeholder: "95%" },
+  { name: "statSchoolLabel", label: "Stat 2 Label", type: "text", placeholder: "School Enrollment" },
+  { name: "statDonors", label: "Stat 3 Value", type: "text", placeholder: "500+" },
+  { name: "statDonorsLabel", label: "Stat 3 Label", type: "text", placeholder: "Donors Worldwide" },
+  { name: "statYearsOfImpact", label: "Stat 4 Value", type: "text", placeholder: "4+" },
+  { name: "statYearsLabel", label: "Stat 4 Label", type: "text", placeholder: "Years of Impact" },
+];
+
 export default function Hero({ onWatchStory }) {
   const { openDonationModal } = useDonation();
   const { isAdminMode } = useAdmin();
@@ -34,10 +46,29 @@ export default function Hero({ onWatchStory }) {
     motto: "Touch a child's heart",
     mission: "Restoring hope, one child at a time",
   });
+  const [statsData, setStatsData] = useState({
+    id: null,
+    statChildrenSupported: "150+",
+    statChildrenLabel: "Children Supported",
+    statSchoolEnrollment: "95%",
+    statSchoolLabel: "School Enrollment",
+    statDonors: "500+",
+    statDonorsLabel: "Donors Worldwide",
+    statYearsOfImpact: "4+",
+    statYearsLabel: "Years of Impact",
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const heroRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
+
+  // Build stats array from data
+  const impactStats = [
+    { icon: <FaUsers className="w-5 h-5" />, value: statsData.statChildrenSupported, label: statsData.statChildrenLabel },
+    { icon: <FaGraduationCap className="w-5 h-5" />, value: statsData.statSchoolEnrollment, label: statsData.statSchoolLabel },
+    { icon: <FaHandHoldingHeart className="w-5 h-5" />, value: statsData.statDonors, label: statsData.statDonorsLabel },
+    { icon: <FaHeart className="w-5 h-5" />, value: statsData.statYearsOfImpact, label: statsData.statYearsLabel },
+  ];
 
   // Parallax scroll effect
   useEffect(() => {
@@ -61,18 +92,36 @@ export default function Hero({ onWatchStory }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch hero data
+  // Fetch hero data and stats
   useEffect(() => {
-    async function loadHero() {
+    async function loadData() {
       try {
-        const res = await fetchPageSection("HEADERS");
-        const item = res?.result?.[0];
-        if (item) {
+        // Fetch headers
+        const headerRes = await fetchPageSection("HEADERS");
+        const headerItem = headerRes?.result?.[0];
+        if (headerItem) {
           setHeroData({
-            id: item.id,
-            headerTitle: item.headerTitle || heroData.headerTitle,
-            motto: item.motto || heroData.motto,
-            mission: item.mission || heroData.mission,
+            id: headerItem.id,
+            headerTitle: headerItem.headerTitle || heroData.headerTitle,
+            motto: headerItem.motto || heroData.motto,
+            mission: headerItem.mission || heroData.mission,
+          });
+        }
+
+        // Fetch stats
+        const statsRes = await fetchPageSection("STATS");
+        const statsItem = statsRes?.result?.[0];
+        if (statsItem) {
+          setStatsData({
+            id: statsItem.id,
+            statChildrenSupported: statsItem.statChildrenSupported || statsData.statChildrenSupported,
+            statChildrenLabel: statsItem.statChildrenLabel || statsData.statChildrenLabel,
+            statSchoolEnrollment: statsItem.statSchoolEnrollment || statsData.statSchoolEnrollment,
+            statSchoolLabel: statsItem.statSchoolLabel || statsData.statSchoolLabel,
+            statDonors: statsItem.statDonors || statsData.statDonors,
+            statDonorsLabel: statsItem.statDonorsLabel || statsData.statDonorsLabel,
+            statYearsOfImpact: statsItem.statYearsOfImpact || statsData.statYearsOfImpact,
+            statYearsLabel: statsItem.statYearsLabel || statsData.statYearsLabel,
           });
         }
       } catch (err) {
@@ -81,22 +130,27 @@ export default function Hero({ onWatchStory }) {
         setIsLoaded(true);
       }
     }
-    loadHero();
+    loadData();
   }, []);
 
   // Save hero data
   const handleSaveHero = async (data) => {
     if (heroData.id) {
-      // Update existing
-      await updatePageSection("HEADERS", {
-        id: heroData.id,
-        ...data,
-      });
+      await updatePageSection("HEADERS", { id: heroData.id, ...data });
     } else {
-      // Create new
       await createPageSection("HEADERS", data);
     }
     setHeroData({ ...heroData, ...data });
+  };
+
+  // Save stats data
+  const handleSaveStats = async (data) => {
+    if (statsData.id) {
+      await updatePageSection("STATS", { id: statsData.id, ...data });
+    } else {
+      await createPageSection("STATS", data);
+    }
+    setStatsData({ ...statsData, ...data });
   };
 
   return (
@@ -228,14 +282,21 @@ export default function Hero({ onWatchStory }) {
         <div className="absolute bottom-0 left-0 right-0 z-20 pb-8">
           <div className="max-w-5xl mx-auto px-6">
             <div
-              className={`bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 transition-all duration-700 delay-500 ${
+              className={`relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-2 transition-all duration-700 delay-500 ${
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
+              {/* Stats Edit Tag */}
+              {isAdminMode && (
+                <div className="absolute -top-2 -right-2 z-30">
+                  <EditTag sectionId="stats" label="Stats" />
+                </div>
+              )}
+              
               <div className="grid grid-cols-2 md:grid-cols-4">
                 {impactStats.map((stat, index) => (
                   <div
-                    key={stat.label}
+                    key={index}
                     className={`flex items-center justify-center gap-3 py-4 px-4 ${
                       index !== impactStats.length - 1 ? "md:border-r md:border-white/10" : ""
                     }`}
@@ -267,6 +328,15 @@ export default function Hero({ onWatchStory }) {
         fields={heroEditFields}
         initialData={heroData}
         onSave={handleSaveHero}
+      />
+
+      {/* Inline Edit Modal for Stats */}
+      <InlineEditModal
+        sectionId="stats"
+        title="Impact Statistics"
+        fields={statsEditFields}
+        initialData={statsData}
+        onSave={handleSaveStats}
       />
     </section>
   );

@@ -19,6 +19,9 @@ export async function updatePageSection(typeToCreate, sectionData) {
     LINKS: "links",
     CONTACT: "contactRequest",
     PAYMENT: "paymentType",
+    STATS: "stats",
+    CEO: "ceoStatement",
+    DONATION_IMPACT: "donationImpact",
   };
 
   const key = keyMap[typeToCreate];
@@ -48,6 +51,9 @@ export async function createPageSection(typeToCreate, sectionData) {
     LINKS: "links",
     CONTACT: "contactRequest",
     PAYMENT: "paymentType",
+    STATS: "stats",
+    CEO: "ceoStatement",
+    DONATION_IMPACT: "donationImpact",
   };
 
   const key = keyMap[typeToCreate];
