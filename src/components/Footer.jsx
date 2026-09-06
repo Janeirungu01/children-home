@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
+import { useAdmin } from "../context/AdminContext";
+import EditTag from "../admin/components/EditTag";
+import InlineEditModal from "../admin/components/InlineEditModal";
 import { 
   FaFacebookF, 
   FaTwitter, 
@@ -11,7 +16,8 @@ import {
   FaPhone,
   FaMapMarkerAlt,
   FaHeart,
-  FaArrowRight
+  FaArrowRight,
+  FaCog
 } from "react-icons/fa";
 
 const quickLinks = [
@@ -30,9 +36,26 @@ const socialIcons = {
   whatsApp: FaWhatsapp,
 };
 
+const linksEditFields = [
+  { name: "youtube", label: "YouTube Video URL", type: "text", placeholder: "https://www.youtube.com/watch?v=...", help: "Main video embedded in the hero section" },
+  { name: "youtubeChannel", label: "YouTube Channel URL", type: "text", placeholder: "https://www.youtube.com/@yourchannel", help: "Link to your YouTube channel page" },
+  { name: "watchOurStory", label: "Watch Our Story URL", type: "text", placeholder: "https://www.youtube.com/watch?v=...", help: "Video link for 'Watch Our Story' button" },
+  { name: "facebook", label: "Facebook URL", type: "text", placeholder: "https://facebook.com/..." },
+  { name: "twitter", label: "Twitter/X URL", type: "text", placeholder: "https://twitter.com/..." },
+  { name: "instagram", label: "Instagram URL", type: "text", placeholder: "https://instagram.com/..." },
+  { name: "whatsApp", label: "WhatsApp Link", type: "text", placeholder: "https://wa.me/...", help: "Format: https://wa.me/254700000000" },
+];
+
+const contactEditFields = [
+  { name: "email", label: "Email Address", type: "email", placeholder: "info@example.com" },
+  { name: "phoneNumber", label: "Phone Number", type: "text", placeholder: "+254 700 000 000" },
+  { name: "address", label: "Address", type: "text", placeholder: "Nairobi, Kenya" },
+];
+
 export default function Footer() {
-  const [contact, setContact] = useState(null);
-  const [links, setLinks] = useState(null);
+  const { isAdminMode } = useAdmin();
+  const [contact, setContact] = useState({ id: null, email: "", phoneNumber: "", address: "" });
+  const [links, setLinks] = useState({ id: null, facebook: "", twitter: "", instagram: "", youtube: "", whatsApp: "" });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,8 +69,10 @@ export default function Footer() {
         ]);
 
         if (!cancelled) {
-          setContact(contactRes.data?.result?.[0] || null);
-          setLinks(linksRes.data?.result?.[0] || null);
+          const contactData = contactRes.data?.result?.[0];
+          const linksData = linksRes.data?.result?.[0];
+          if (contactData) setContact({ id: contactData.id, ...contactData });
+          if (linksData) setLinks({ id: linksData.id, ...linksData });
         }
       } catch {
         if (!cancelled) console.warn("Failed to load footer data");
@@ -60,12 +85,47 @@ export default function Footer() {
     return () => { cancelled = true; };
   }, []);
 
+  const handleSaveLinks = async (data) => {
+    if (links.id) {
+      await updatePageSection("LINKS", { id: links.id, ...data });
+    } else {
+      await createPageSection("LINKS", data);
+    }
+    setLinks({ ...links, ...data });
+  };
+
+  const handleSaveContact = async (data) => {
+    if (contact.id) {
+      await updatePageSection("CONTACT", { id: contact.id, ...data });
+    } else {
+      await createPageSection("CONTACT", data);
+    }
+    setContact({ ...contact, ...data });
+  };
+
   const socialEntries = links
-    ? Object.entries(links).filter(([key, value]) => socialIcons[key] && value)
+    ? Object.entries(links).filter(([key, value]) => {
+        // Use youtubeChannel for the social icon, not the video URL
+        if (key === 'youtube' || key === 'watchOurStory') return false;
+        if (key === 'youtubeChannel') return value; // Show YouTube icon if channel URL exists
+        return socialIcons[key] && value;
+      }).map(([key, value]) => {
+        // Map youtubeChannel to youtube for the icon
+        if (key === 'youtubeChannel') return ['youtube', value];
+        return [key, value];
+      })
     : [];
 
   return (
-    <footer id="contact" className="bg-gray-900 text-white">
+    <footer id="contact" className="bg-gray-900 text-white relative">
+      {/* Edit Tags */}
+      {isAdminMode && (
+        <div className="absolute top-4 right-4 z-10 flex gap-2">
+          <EditTag sectionId="links" label="Links" />
+          <EditTag sectionId="contact" label="Contact" />
+        </div>
+      )}
+
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -195,10 +255,34 @@ export default function Footer() {
               <span className="flex items-center gap-2">
                 Made with <FaHeart className="w-3 h-3 text-red-500" /> for children
               </span>
+              {/* Subtle admin link */}
+              <Link 
+                to="/admin" 
+                className="opacity-30 hover:opacity-100 transition-opacity duration-300"
+                title="Admin"
+              >
+                <FaCog className="w-3 h-3" />
+              </Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Edit Modals */}
+      <InlineEditModal
+        sectionId="links"
+        title="Social Links & Video"
+        fields={linksEditFields}
+        initialData={links}
+        onSave={handleSaveLinks}
+      />
+      <InlineEditModal
+        sectionId="contact"
+        title="Contact Info"
+        fields={contactEditFields}
+        initialData={contact}
+        onSave={handleSaveContact}
+      />
     </footer>
   );
 }

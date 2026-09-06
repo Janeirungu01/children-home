@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchPageSection } from "../api/pageApi";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 import { FaHeart, FaHandHoldingHeart, FaHome, FaGraduationCap } from "react-icons/fa";
+import { useAdmin } from "../context/AdminContext";
+import EditTag from "../admin/components/EditTag";
+import InlineEditModal from "../admin/components/InlineEditModal";
 import aboutImage from "../assets/children12.jpg";
 
 const features = [
@@ -10,8 +13,16 @@ const features = [
   { icon: <FaHandHoldingHeart className="w-5 h-5" />, title: "Love & Care", desc: "Nurturing environment" },
 ];
 
+const aboutEditFields = [
+  { name: "introductionSubtitle", label: "Main Title", type: "text" },
+  { name: "introductionTitle", label: "Subtitle", type: "text" },
+  { name: "introductionBody", label: "Description", type: "textarea", rows: 6 },
+];
+
 export default function ImageTextSection() {
+  const { isAdminMode } = useAdmin();
   const [introData, setIntroData] = useState({
+    id: null,
     introductionTitle: "Make a Difference Today",
     introductionSubtitle: "Support Orphans in Extreme Need",
     introductionBody:
@@ -25,11 +36,12 @@ export default function ImageTextSection() {
         const item = res?.result?.[0];
 
         if (item) {
-          setIntroData((prev) => ({
-            introductionTitle: item.introductionTitle || prev.introductionTitle,
-            introductionSubtitle: item.introductionSubtitle || prev.introductionSubtitle,
-            introductionBody: item.introductionBody || prev.introductionBody,
-          }));
+          setIntroData({
+            id: item.id,
+            introductionTitle: item.introductionTitle || introData.introductionTitle,
+            introductionSubtitle: item.introductionSubtitle || introData.introductionSubtitle,
+            introductionBody: item.introductionBody || introData.introductionBody,
+          });
         }
       } catch {
         console.warn("Introduction backend not available, using fallback content");
@@ -39,8 +51,24 @@ export default function ImageTextSection() {
     loadIntroduction();
   }, []);
 
+  const handleSaveAbout = async (data) => {
+    if (introData.id) {
+      await updatePageSection("INTRODUCTION", { id: introData.id, ...data });
+    } else {
+      await createPageSection("INTRODUCTION", data);
+    }
+    setIntroData({ ...introData, ...data });
+  };
+
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gray-50 relative">
+      {/* Edit Tag */}
+      {isAdminMode && (
+        <div className="absolute top-4 right-4 z-10">
+          <EditTag sectionId="about" label="About" />
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Image Side */}
@@ -121,6 +149,15 @@ export default function ImageTextSection() {
           </div>
         </div>
       </div>
+
+      {/* Inline Edit Modal */}
+      <InlineEditModal
+        sectionId="about"
+        title="About Section"
+        fields={aboutEditFields}
+        initialData={introData}
+        onSave={handleSaveAbout}
+      />
     </section>
   );
 }

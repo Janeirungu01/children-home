@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import { fetchPageSection } from "../api/pageApi";
+import { fetchPageSection, updatePageSection, createPageSection } from "../api/pageApi";
 import { FaHeart, FaHandHoldingHeart, FaUsers, FaGraduationCap, FaPlay } from "react-icons/fa";
 import { useDonation } from "../hooks/useDonation";
+import { useAdmin } from "../context/AdminContext";
+import EditTag from "../admin/components/EditTag";
+import InlineEditModal from "../admin/components/InlineEditModal";
 import backgroundImage from "../assets/children15.jpeg";
 import img2 from "../assets/children14.jpeg";
 import img3 from "../assets/children12.jpg";
@@ -15,9 +18,18 @@ const impactStats = [
 
 const heroImages = [backgroundImage, img2, img3];
 
+// Edit fields configuration
+const heroEditFields = [
+  { name: "headerTitle", label: "Main Title", type: "text", placeholder: "Foundation name" },
+  { name: "motto", label: "Motto", type: "text", placeholder: "Your motto" },
+  { name: "mission", label: "Mission Statement", type: "textarea", rows: 3, placeholder: "Mission description" },
+];
+
 export default function Hero({ onWatchStory }) {
   const { openDonationModal } = useDonation();
+  const { isAdminMode } = useAdmin();
   const [heroData, setHeroData] = useState({
+    id: null,
     headerTitle: "Brighter Together Foundation",
     motto: "Touch a child's heart",
     mission: "Restoring hope, one child at a time",
@@ -56,11 +68,12 @@ export default function Hero({ onWatchStory }) {
         const res = await fetchPageSection("HEADERS");
         const item = res?.result?.[0];
         if (item) {
-          setHeroData((prev) => ({
-            headerTitle: item.headerTitle || prev.headerTitle,
-            motto: item.motto || prev.motto,
-            mission: item.mission || prev.mission,
-          }));
+          setHeroData({
+            id: item.id,
+            headerTitle: item.headerTitle || heroData.headerTitle,
+            motto: item.motto || heroData.motto,
+            mission: item.mission || heroData.mission,
+          });
         }
       } catch (err) {
         console.error("Failed to load hero data", err);
@@ -70,6 +83,21 @@ export default function Hero({ onWatchStory }) {
     }
     loadHero();
   }, []);
+
+  // Save hero data
+  const handleSaveHero = async (data) => {
+    if (heroData.id) {
+      // Update existing
+      await updatePageSection("HEADERS", {
+        id: heroData.id,
+        ...data,
+      });
+    } else {
+      // Create new
+      await createPageSection("HEADERS", data);
+    }
+    setHeroData({ ...heroData, ...data });
+  };
 
   return (
     <section ref={heroRef} className="relative min-h-screen overflow-hidden">
@@ -115,18 +143,26 @@ export default function Hero({ onWatchStory }) {
               </span>
             </div>
 
-            {/* Main Title */}
-            <h1
-              className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] transition-all duration-700 delay-100 drop-shadow-lg ${
-                isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-              style={{ 
-                fontFamily: "'Playfair Display', Georgia, serif",
-                textShadow: "2px 2px 8px rgba(0,0,0,0.6)"
-              }}
-            >
-              {heroData.headerTitle}
-            </h1>
+            {/* Main Title with Edit Tag */}
+            <div className="relative inline-block">
+              <h1
+                className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1] transition-all duration-700 delay-100 drop-shadow-lg ${
+                  isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+                style={{ 
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  textShadow: "2px 2px 8px rgba(0,0,0,0.6)"
+                }}
+              >
+                {heroData.headerTitle}
+              </h1>
+              {/* Edit Tag - positioned top right */}
+              {isAdminMode && (
+                <div className="absolute -top-2 -right-2">
+                  <EditTag sectionId="hero" label="Hero" />
+                </div>
+              )}
+            </div>
 
             {/* Motto */}
             <p
@@ -223,6 +259,15 @@ export default function Hero({ onWatchStory }) {
           Scroll to explore
         </div>
       </div>
+
+      {/* Inline Edit Modal for Hero */}
+      <InlineEditModal
+        sectionId="hero"
+        title="Hero Section"
+        fields={heroEditFields}
+        initialData={heroData}
+        onSave={handleSaveHero}
+      />
     </section>
   );
 }

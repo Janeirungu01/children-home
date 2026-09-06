@@ -26,9 +26,13 @@ export async function updatePageSection(typeToCreate, sectionData) {
     throw new Error(`Invalid typeToCreate: ${typeToCreate}`);
   }
 
+  // Ensure we have the id from sectionData
   const body = {
     typeToCreate,
-    [key]: sectionData,
+    [key]: {
+      id: sectionData.id,
+      ...sectionData
+    },
   };
 
   const res = await api.put(API.UPDATE_PAGE_DATA, body);

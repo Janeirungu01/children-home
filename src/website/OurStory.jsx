@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import apiPublic from "../api/axiosPublic";
 import { API } from "../api/endpoints";
+import { updatePageSection, createPageSection } from "../api/pageApi";
 import { FaHeart, FaUsers, FaCalendarAlt, FaHandshake } from "react-icons/fa";
+import { useAdmin } from "../context/AdminContext";
+import EditTag from "../admin/components/EditTag";
+import InlineEditModal from "../admin/components/InlineEditModal";
 
 const milestones = [
   { year: "2022", event: "Foundation Conceived", icon: <FaHeart /> },
@@ -10,8 +14,16 @@ const milestones = [
   { year: "2024", event: "Growing Strong", icon: <FaCalendarAlt /> },
 ];
 
+const storyEditFields = [
+  { name: "ourStoryTitle", label: "Section Label", type: "text" },
+  { name: "ourStorySubtitle", label: "Main Title", type: "text" },
+  { name: "ourStoryBody", label: "Story Content", type: "textarea", rows: 10 },
+];
+
 export default function OurStory() {
+  const { isAdminMode } = useAdmin();
   const [ourStory, setOurStory] = useState({
+    id: null,
     ourStoryTitle: "Our Story",
     ourStorySubtitle: "How Brighter Together Foundation Began",
     ourStoryBody:
@@ -26,11 +38,12 @@ export default function OurStory() {
         });
         const item = data?.result?.[0];
         if (item) {
-          setOurStory((prev) => ({
-            ourStoryTitle: item.ourStoryTitle || prev.ourStoryTitle,
-            ourStorySubtitle: item.ourStorySubtitle || prev.ourStorySubtitle,
-            ourStoryBody: item.ourStoryBody || prev.ourStoryBody,
-          }));
+          setOurStory({
+            id: item.id,
+            ourStoryTitle: item.ourStoryTitle || ourStory.ourStoryTitle,
+            ourStorySubtitle: item.ourStorySubtitle || ourStory.ourStorySubtitle,
+            ourStoryBody: item.ourStoryBody || ourStory.ourStoryBody,
+          });
         }
       } catch {
         console.warn("Our Story backend not available, using fallback content");
@@ -39,8 +52,24 @@ export default function OurStory() {
     fetchOurStory();
   }, []);
 
+  const handleSaveStory = async (data) => {
+    if (ourStory.id) {
+      await updatePageSection("OURSTORY", { id: ourStory.id, ...data });
+    } else {
+      await createPageSection("OURSTORY", data);
+    }
+    setOurStory({ ...ourStory, ...data });
+  };
+
   return (
-    <section id="story" className="py-20 bg-white">
+    <section id="story" className="py-20 bg-white relative">
+      {/* Edit Tag */}
+      {isAdminMode && (
+        <div className="absolute top-4 right-4 z-10">
+          <EditTag sectionId="story" label="Story" />
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -126,6 +155,15 @@ export default function OurStory() {
           </div>
         </div>
       </div>
+
+      {/* Inline Edit Modal */}
+      <InlineEditModal
+        sectionId="story"
+        title="Our Story"
+        fields={storyEditFields}
+        initialData={ourStory}
+        onSave={handleSaveStory}
+      />
     </section>
   );
 }

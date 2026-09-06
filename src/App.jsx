@@ -1,24 +1,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./website/Home";
-import HeroManager from "./admin/HeroManager";
 import ActivitiesSection from "./components/ActivitiesSection";
 import OurStory from "./website/OurStory";
 import GoalSection from "./website/Goals";
 import Footer from "./components/Footer";
 
 import AdminLayout from "./admin/AdminLayout";
-import SignUpPage from "./components/Signup";
+import AdminLogin from "./admin/AdminLogin";
+import AdminAuthGuard from "./admin/AdminAuthGuard";
+import CreateUser from "./admin/CreateUser";
 import LoginPage from "./components/Login";
-import SignOut from "./components/SignOut";
 import Dashboard from "./admin/Dashboard";
-import ActivitiesManager from "./admin/ActivitiesManager";
-import IntroductionManager from "./admin/IntroductionManager";
-import UploadDocument from "./admin/UploadDocument";
-import OurStoryManager from "./admin/OurStoryManager";
-import PaymentManager from "./admin/PaymentManager";
-import FooterManager from "./admin/FooterManager";
 
 import { AppProvider } from "./context/AppContext";
+import { AdminProvider } from "./context/AdminContext";
 import Notifications from "./components/Notifications";
 import DonationTracker from "./components/DonationTracker";
 import { DonationPersistence } from "./hooks/usePersistDonations";
@@ -30,29 +25,30 @@ function App() {
       <DonationTracker />
       <DonationPersistence />
       <BrowserRouter>
-        <Routes>
-          {/* Public Website */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/activities" element={<ActivitiesSection />} />
-          <Route path="/goals" element={<GoalSection />} />
-          <Route path="/story" element={<OurStory />} />
-          <Route path="/contact" element={<Footer />} />
+        <AdminProvider>
+          <Routes>
+            {/* Public Website - with admin editing capabilities when logged in */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/activities" element={<ActivitiesSection />} />
+            <Route path="/goals" element={<GoalSection />} />
+            <Route path="/story" element={<OurStory />} />
+            <Route path="/contact" element={<Footer />} />
 
-          {/* Admin */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="signup" element={<SignUpPage />} />
-            <Route path="hero" element={<HeroManager />} />
-            <Route path="documents" element={<UploadDocument />} />
-            <Route path="ourstory" element={<OurStoryManager />} />
-            <Route path="introduction" element={<IntroductionManager />} />
-            <Route path="activities" element={<ActivitiesManager />} />
-            <Route path="payment" element={<PaymentManager />} />
-            <Route path="contact" element={<FooterManager />} />
-            <Route path="signout" element={<SignOut />} />
-          </Route>
-        </Routes>
+            {/* Admin Login (public) */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+
+            {/* Protected Admin Routes - Dashboard */}
+            <Route path="/admin" element={
+              <AdminAuthGuard>
+                <AdminLayout />
+              </AdminAuthGuard>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="create-user" element={<CreateUser />} />
+            </Route>
+          </Routes>
+        </AdminProvider>
       </BrowserRouter>
     </AppProvider>
   );
